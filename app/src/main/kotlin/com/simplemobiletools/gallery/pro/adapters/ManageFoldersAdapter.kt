@@ -1,6 +1,10 @@
 package com.simplemobiletools.gallery.pro.adapters
 
-import android.view.*
+import android.view.ContextThemeWrapper
+import android.view.Gravity
+import android.view.Menu
+import android.view.View
+import android.view.ViewGroup
 import android.widget.PopupMenu
 import com.simplemobiletools.commons.activities.BaseSimpleActivity
 import com.simplemobiletools.commons.adapters.MyRecyclerViewAdapter
@@ -13,8 +17,12 @@ import com.simplemobiletools.gallery.pro.databinding.ItemManageFolderBinding
 import com.simplemobiletools.gallery.pro.extensions.config
 
 class ManageFoldersAdapter(
-    activity: BaseSimpleActivity, var folders: ArrayList<String>, val isShowingExcludedFolders: Boolean, val listener: RefreshRecyclerViewListener?,
-    recyclerView: MyRecyclerView, itemClick: (Any) -> Unit
+    activity: BaseSimpleActivity,
+    var folders: ArrayList<String>,
+    private val isShowingExcludedFolders: Boolean,
+    val listener: RefreshRecyclerViewListener?,
+    recyclerView: MyRecyclerView,
+    itemClick: (Any) -> Unit
 ) : MyRecyclerViewAdapter(activity, recyclerView, itemClick) {
 
     private val config = activity.config
@@ -51,7 +59,11 @@ class ManageFoldersAdapter(
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val folder = folders[position]
-        holder.bindView(folder, true, true) { itemView, adapterPosition ->
+        holder.bindView(
+            any = folder,
+            allowSingleClick = true,
+            allowLongClick = true
+        ) { itemView, _ ->
             setupView(itemView, folder)
         }
         bindViewHolder(holder)
@@ -59,7 +71,8 @@ class ManageFoldersAdapter(
 
     override fun getItemCount() = folders.size
 
-    private fun getSelectedItems() = folders.filter { selectedKeys.contains(it.hashCode()) } as ArrayList<String>
+    private fun getSelectedItems() =
+        folders.filter { selectedKeys.contains(it.hashCode()) } as ArrayList<String>
 
     private fun setupView(view: View, folder: String) {
         ItemManageFolderBinding.bind(view).apply {
@@ -122,7 +135,7 @@ class ManageFoldersAdapter(
             }
         }
 
-        folders.removeAll(removeFolders)
+        folders.removeAll(removeFolders.toSet())
         removeSelectedItems(positions)
         if (folders.isEmpty()) {
             listener?.refreshItems()

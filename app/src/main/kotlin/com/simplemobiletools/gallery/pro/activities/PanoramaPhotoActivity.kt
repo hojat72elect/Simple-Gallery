@@ -12,7 +12,13 @@ import android.view.WindowInsetsController
 import android.widget.RelativeLayout
 import com.google.vr.sdk.widgets.pano.VrPanoramaEventListener
 import com.google.vr.sdk.widgets.pano.VrPanoramaView
-import com.simplemobiletools.commons.extensions.*
+import com.simplemobiletools.commons.extensions.beVisible
+import com.simplemobiletools.commons.extensions.navigationBarHeight
+import com.simplemobiletools.commons.extensions.navigationBarWidth
+import com.simplemobiletools.commons.extensions.onGlobalLayout
+import com.simplemobiletools.commons.extensions.showErrorToast
+import com.simplemobiletools.commons.extensions.toast
+import com.simplemobiletools.commons.extensions.viewBinding
 import com.simplemobiletools.commons.helpers.ensureBackgroundThread
 import com.simplemobiletools.commons.helpers.isRPlus
 import com.simplemobiletools.gallery.pro.R
@@ -53,7 +59,10 @@ open class PanoramaPhotoActivity : SimpleActivity() {
         checkIntent()
 
         if (isRPlus()) {
-            window.insetsController?.setSystemBarsAppearance(0, WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS)
+            window.insetsController?.setSystemBarsAppearance(
+                0,
+                WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS
+            )
         }
     }
 
@@ -171,10 +180,12 @@ open class PanoramaPhotoActivity : SimpleActivity() {
             rightMargin = navigationBarWidth
         }
 
-        (binding.explore.layoutParams as RelativeLayout.LayoutParams).bottomMargin = navigationBarHeight
+        (binding.explore.layoutParams as RelativeLayout.LayoutParams).bottomMargin =
+            navigationBarHeight
 
         binding.cardboard.onGlobalLayout {
-            binding.panoramaGradientBackground.layoutParams.height = navBarHeight + binding.cardboard.height
+            binding.panoramaGradientBackground.layoutParams.height =
+                navBarHeight + binding.cardboard.height
         }
     }
 
@@ -189,9 +200,9 @@ open class PanoramaPhotoActivity : SimpleActivity() {
         isFullscreen = !isFullscreen
         toggleButtonVisibility()
         if (isFullscreen) {
-            hideSystemUI(false)
+            hideSystemUI()
         } else {
-            showSystemUI(false)
+            showSystemUI()
         }
     }
 }

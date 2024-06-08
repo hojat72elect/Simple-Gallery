@@ -8,7 +8,7 @@ import com.simplemobiletools.gallery.pro.databinding.DialogOtherAspectRatioBindi
 
 class OtherAspectRatioDialog(
     val activity: BaseSimpleActivity,
-    val lastOtherAspectRatio: Pair<Float, Float>?,
+    private val lastOtherAspectRatio: Pair<Float, Float>?,
     val callback: (aspectRatio: Pair<Float, Float>) -> Unit
 ) {
     private var dialog: AlertDialog? = null

@@ -18,7 +18,7 @@ abstract class GalleryDatabase : RoomDatabase() {
 
     abstract fun WidgetsDao(): WidgetsDao
 
-    abstract fun DateTakensDao(): DateTakensDao
+    abstract fun dateTokensDao(): DateTakensDao
 
     abstract fun FavoritesDao(): FavoritesDao
 

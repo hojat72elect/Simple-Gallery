@@ -1,6 +1,9 @@
 package com.simplemobiletools.gallery.pro.helpers
 
-import com.simplemobiletools.commons.helpers.*
+import com.simplemobiletools.commons.helpers.MONTH_SECONDS
+import com.simplemobiletools.commons.helpers.PERMISSION_READ_MEDIA_IMAGES
+import com.simplemobiletools.commons.helpers.PERMISSION_WRITE_STORAGE
+import com.simplemobiletools.commons.helpers.isTiramisuPlus
 
 // shared preferences
 const val DIRECTORY_SORT_ORDER = "directory_sort_order"
@@ -35,7 +38,8 @@ const val MEDIA_COLUMN_CNT = "media_column_cnt"
 const val MEDIA_LANDSCAPE_COLUMN_CNT = "media_landscape_column_cnt"
 const val MEDIA_HORIZONTAL_COLUMN_CNT = "media_horizontal_column_cnt"
 const val MEDIA_LANDSCAPE_HORIZONTAL_COLUMN_CNT = "media_landscape_horizontal_column_cnt"
-const val SHOW_ALL = "show_all"                           // display images and videos from all folders together
+const val SHOW_ALL =
+    "show_all"                           // display images and videos from all folders together
 const val HIDE_FOLDER_TOOLTIP_SHOWN = "hide_folder_tooltip_shown"
 const val EXCLUDED_FOLDERS = "excluded_folders"
 const val INCLUDED_FOLDERS = "included_folders"
@@ -51,9 +55,7 @@ const val SHOW_EXTENDED_DETAILS = "show_extended_details"
 const val EXTENDED_DETAILS = "extended_details"
 const val HIDE_EXTENDED_DETAILS = "hide_extended_details"
 const val ALLOW_INSTANT_CHANGE = "allow_instant_change"
-const val WAS_NEW_APP_SHOWN = "was_new_app_shown_clock"
 const val LAST_FILEPICKER_PATH = "last_filepicker_path"
-const val LAST_COPY_PATH = "last_copy_path"
 const val TEMP_SKIP_DELETE_CONFIRMATION = "temp_skip_delete_confirmation"
 const val TEMP_SKIP_RECYCLE_BIN = "temp_skip_recycle_bin"
 const val BOTTOM_ACTIONS = "bottom_actions"
@@ -169,9 +171,6 @@ const val EXT_LAST_MODIFIED = 16
 const val EXT_DATE_TAKEN = 32
 const val EXT_CAMERA_MODEL = 64
 const val EXT_EXIF_PROPERTIES = 128
-const val EXT_DURATION = 256
-const val EXT_ARTIST = 512
-const val EXT_ALBUM = 1024
 const val EXT_GPS = 2048
 
 // media types
@@ -216,7 +215,8 @@ const val BOTTOM_ACTION_COPY = 4096
 const val BOTTOM_ACTION_MOVE = 8192
 const val BOTTOM_ACTION_RESIZE = 16384
 
-const val DEFAULT_BOTTOM_ACTIONS = BOTTOM_ACTION_TOGGLE_FAVORITE or BOTTOM_ACTION_EDIT or BOTTOM_ACTION_SHARE or BOTTOM_ACTION_DELETE
+const val DEFAULT_BOTTOM_ACTIONS =
+    BOTTOM_ACTION_TOGGLE_FAVORITE or BOTTOM_ACTION_EDIT or BOTTOM_ACTION_SHARE or BOTTOM_ACTION_DELETE
 
 // aspect ratios used at the editor for cropping
 const val ASPECT_RATIO_FREE = 0
@@ -242,19 +242,5 @@ const val FOLDER_MEDIA_CNT_NONE = 3
 const val FOLDER_STYLE_SQUARE = 1
 const val FOLDER_STYLE_ROUNDED_CORNERS = 2
 
-fun getPermissionToRequest() = if (isTiramisuPlus()) PERMISSION_READ_MEDIA_IMAGES else PERMISSION_WRITE_STORAGE
-
-fun getRequiredPermission() = if (isUpsideDownCakePlus()) PERMISSION_READ_MEDIA_VISUAL_USER_SELECTED else getPermissionToRequest()
-
-fun getPermissionsToRequest(): Collection<Int> {
-    val permissions = mutableListOf(getPermissionToRequest())
-    if (isRPlus()) {
-        permissions.add(PERMISSION_MEDIA_LOCATION)
-    }
-
-    if (isTiramisuPlus()) {
-        permissions.add(PERMISSION_READ_MEDIA_VIDEO)
-    }
-
-    return permissions
-}
+fun getPermissionToRequest() =
+    if (isTiramisuPlus()) PERMISSION_READ_MEDIA_IMAGES else PERMISSION_WRITE_STORAGE

@@ -20,6 +20,7 @@ import android.provider.MediaStore.Images
 import android.provider.Settings
 import android.util.DisplayMetrics
 import android.view.View
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.exifinterface.media.ExifInterface
 import com.bumptech.glide.Glide
@@ -29,8 +30,69 @@ import com.bumptech.glide.request.RequestOptions
 import com.simplemobiletools.commons.activities.BaseSimpleActivity
 import com.simplemobiletools.commons.dialogs.ConfirmationDialog
 import com.simplemobiletools.commons.dialogs.SecurityDialog
-import com.simplemobiletools.commons.extensions.*
-import com.simplemobiletools.commons.helpers.*
+import com.simplemobiletools.commons.extensions.canManageMedia
+import com.simplemobiletools.commons.extensions.deleteFile
+import com.simplemobiletools.commons.extensions.deleteFromMediaStore
+import com.simplemobiletools.commons.extensions.getCompressionFormat
+import com.simplemobiletools.commons.extensions.getDocumentFile
+import com.simplemobiletools.commons.extensions.getDoesFilePathExist
+import com.simplemobiletools.commons.extensions.getFileInputStreamSync
+import com.simplemobiletools.commons.extensions.getFileKey
+import com.simplemobiletools.commons.extensions.getFileOutputStream
+import com.simplemobiletools.commons.extensions.getFileOutputStreamSync
+import com.simplemobiletools.commons.extensions.getFileUri
+import com.simplemobiletools.commons.extensions.getFilenameFromPath
+import com.simplemobiletools.commons.extensions.getImageResolution
+import com.simplemobiletools.commons.extensions.getItemSize
+import com.simplemobiletools.commons.extensions.getMimeType
+import com.simplemobiletools.commons.extensions.getParentPath
+import com.simplemobiletools.commons.extensions.getPicturesDirectoryPath
+import com.simplemobiletools.commons.extensions.getSomeDocumentFile
+import com.simplemobiletools.commons.extensions.hideKeyboard
+import com.simplemobiletools.commons.extensions.humanizePath
+import com.simplemobiletools.commons.extensions.isAccessibleWithSAFSdk30
+import com.simplemobiletools.commons.extensions.isExternalStorageManager
+import com.simplemobiletools.commons.extensions.isInDownloadDir
+import com.simplemobiletools.commons.extensions.isJpg
+import com.simplemobiletools.commons.extensions.isRestrictedSAFOnlyRoot
+import com.simplemobiletools.commons.extensions.isRestrictedWithSAFSdk30
+import com.simplemobiletools.commons.extensions.launchActivityIntent
+import com.simplemobiletools.commons.extensions.needsStupidWritePermissions
+import com.simplemobiletools.commons.extensions.openEditorIntent
+import com.simplemobiletools.commons.extensions.openPathIntent
+import com.simplemobiletools.commons.extensions.recycleBinPath
+import com.simplemobiletools.commons.extensions.renameFile
+import com.simplemobiletools.commons.extensions.rescanAndDeletePath
+import com.simplemobiletools.commons.extensions.rescanPaths
+import com.simplemobiletools.commons.extensions.saveExifRotation
+import com.simplemobiletools.commons.extensions.saveImageRotation
+import com.simplemobiletools.commons.extensions.setAsIntent
+import com.simplemobiletools.commons.extensions.sharePathIntent
+import com.simplemobiletools.commons.extensions.sharePathsIntent
+import com.simplemobiletools.commons.extensions.showErrorToast
+import com.simplemobiletools.commons.extensions.showLocationOnMap
+import com.simplemobiletools.commons.extensions.toFileDirItem
+import com.simplemobiletools.commons.extensions.toast
+import com.simplemobiletools.commons.extensions.updateLastModified
+import com.simplemobiletools.commons.helpers.LICENSE_APNG
+import com.simplemobiletools.commons.helpers.LICENSE_CROPPER
+import com.simplemobiletools.commons.helpers.LICENSE_EXOPLAYER
+import com.simplemobiletools.commons.helpers.LICENSE_FILTERS
+import com.simplemobiletools.commons.helpers.LICENSE_GESTURE_VIEWS
+import com.simplemobiletools.commons.helpers.LICENSE_GIF_DRAWABLE
+import com.simplemobiletools.commons.helpers.LICENSE_GLIDE
+import com.simplemobiletools.commons.helpers.LICENSE_PANORAMA_VIEW
+import com.simplemobiletools.commons.helpers.LICENSE_PATTERN
+import com.simplemobiletools.commons.helpers.LICENSE_PICASSO
+import com.simplemobiletools.commons.helpers.LICENSE_REPRINT
+import com.simplemobiletools.commons.helpers.LICENSE_RTL
+import com.simplemobiletools.commons.helpers.LICENSE_SANSELAN
+import com.simplemobiletools.commons.helpers.LICENSE_SUBSAMPLING
+import com.simplemobiletools.commons.helpers.NOMEDIA
+import com.simplemobiletools.commons.helpers.ensureBackgroundThread
+import com.simplemobiletools.commons.helpers.isNougatPlus
+import com.simplemobiletools.commons.helpers.isRPlus
+import com.simplemobiletools.commons.helpers.isSPlus
 import com.simplemobiletools.commons.models.FAQItem
 import com.simplemobiletools.commons.models.FileDirItem
 import com.simplemobiletools.gallery.pro.BuildConfig
@@ -46,9 +108,13 @@ import com.simplemobiletools.gallery.pro.helpers.DIRECTORY
 import com.simplemobiletools.gallery.pro.helpers.RECYCLE_BIN
 import com.simplemobiletools.gallery.pro.models.DateTaken
 import com.squareup.picasso.Picasso
-import java.io.*
+import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
+import java.io.InputStream
+import java.io.OutputStream
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Locale
 
 fun Activity.sharePath(path: String) {
     sharePathIntent(path, BuildConfig.APPLICATION_ID)
@@ -70,7 +136,11 @@ fun Activity.setAs(path: String) {
     setAsIntent(path, BuildConfig.APPLICATION_ID)
 }
 
-fun Activity.openPath(path: String, forceChooser: Boolean, extras: HashMap<String, Boolean> = HashMap()) {
+fun Activity.openPath(
+    path: String,
+    forceChooser: Boolean,
+    extras: HashMap<String, Boolean> = HashMap()
+) {
     openPathIntent(path, forceChooser, BuildConfig.APPLICATION_ID, extras = extras)
 }
 
@@ -90,8 +160,9 @@ fun SimpleActivity.launchSettings() {
 }
 
 fun SimpleActivity.launchAbout() {
-    val licenses = LICENSE_GLIDE or LICENSE_CROPPER or LICENSE_RTL or LICENSE_SUBSAMPLING or LICENSE_PATTERN or LICENSE_REPRINT or LICENSE_GIF_DRAWABLE or
-        LICENSE_PICASSO or LICENSE_EXOPLAYER or LICENSE_PANORAMA_VIEW or LICENSE_SANSELAN or LICENSE_FILTERS or LICENSE_GESTURE_VIEWS or LICENSE_APNG
+    val licenses =
+        LICENSE_GLIDE or LICENSE_CROPPER or LICENSE_RTL or LICENSE_SUBSAMPLING or LICENSE_PATTERN or LICENSE_REPRINT or LICENSE_GIF_DRAWABLE or
+                LICENSE_PICASSO or LICENSE_EXOPLAYER or LICENSE_PANORAMA_VIEW or LICENSE_SANSELAN or LICENSE_FILTERS or LICENSE_GESTURE_VIEWS or LICENSE_APNG
 
     val faqItems = arrayListOf(
         FAQItem(R.string.faq_3_title, R.string.faq_3_text),
@@ -99,7 +170,10 @@ fun SimpleActivity.launchAbout() {
         FAQItem(R.string.faq_7_title, R.string.faq_7_text),
         FAQItem(R.string.faq_14_title, R.string.faq_14_text),
         FAQItem(R.string.faq_1_title, R.string.faq_1_text),
-        FAQItem(com.simplemobiletools.commons.R.string.faq_5_title_commons, com.simplemobiletools.commons.R.string.faq_5_text_commons),
+        FAQItem(
+            com.simplemobiletools.commons.R.string.faq_5_title_commons,
+            com.simplemobiletools.commons.R.string.faq_5_text_commons
+        ),
         FAQItem(R.string.faq_5_title, R.string.faq_5_text),
         FAQItem(R.string.faq_4_title, R.string.faq_4_text),
         FAQItem(R.string.faq_6_title, R.string.faq_6_text),
@@ -110,18 +184,47 @@ fun SimpleActivity.launchAbout() {
         FAQItem(R.string.faq_15_title, R.string.faq_15_text),
         FAQItem(R.string.faq_2_title, R.string.faq_2_text),
         FAQItem(R.string.faq_18_title, R.string.faq_18_text),
-        FAQItem(com.simplemobiletools.commons.R.string.faq_9_title_commons, com.simplemobiletools.commons.R.string.faq_9_text_commons),
+        FAQItem(
+            com.simplemobiletools.commons.R.string.faq_9_title_commons,
+            com.simplemobiletools.commons.R.string.faq_9_text_commons
+        ),
     )
 
     if (!resources.getBoolean(com.simplemobiletools.commons.R.bool.hide_google_relations)) {
-        faqItems.add(FAQItem(com.simplemobiletools.commons.R.string.faq_2_title_commons, com.simplemobiletools.commons.R.string.faq_2_text_commons))
-        faqItems.add(FAQItem(com.simplemobiletools.commons.R.string.faq_6_title_commons, com.simplemobiletools.commons.R.string.faq_6_text_commons))
-        faqItems.add(FAQItem(com.simplemobiletools.commons.R.string.faq_7_title_commons, com.simplemobiletools.commons.R.string.faq_7_text_commons))
-        faqItems.add(FAQItem(com.simplemobiletools.commons.R.string.faq_10_title_commons, com.simplemobiletools.commons.R.string.faq_10_text_commons))
+        faqItems.add(
+            FAQItem(
+                com.simplemobiletools.commons.R.string.faq_2_title_commons,
+                com.simplemobiletools.commons.R.string.faq_2_text_commons
+            )
+        )
+        faqItems.add(
+            FAQItem(
+                com.simplemobiletools.commons.R.string.faq_6_title_commons,
+                com.simplemobiletools.commons.R.string.faq_6_text_commons
+            )
+        )
+        faqItems.add(
+            FAQItem(
+                com.simplemobiletools.commons.R.string.faq_7_title_commons,
+                com.simplemobiletools.commons.R.string.faq_7_text_commons
+            )
+        )
+        faqItems.add(
+            FAQItem(
+                com.simplemobiletools.commons.R.string.faq_10_title_commons,
+                com.simplemobiletools.commons.R.string.faq_10_text_commons
+            )
+        )
     }
 
     if (isRPlus() && !isExternalStorageManager()) {
-        faqItems.add(0, FAQItem(R.string.faq_16_title, "${getString(R.string.faq_16_text)} ${getString(R.string.faq_16_text_extra)}"))
+        faqItems.add(
+            0,
+            FAQItem(
+                R.string.faq_16_title,
+                "${getString(R.string.faq_16_text)} ${getString(R.string.faq_16_text_extra)}"
+            )
+        )
         faqItems.add(1, FAQItem(R.string.faq_17_title, R.string.faq_17_text))
         faqItems.removeIf { it.text == R.string.faq_7_text }
         faqItems.removeIf { it.text == R.string.faq_14_text }
@@ -138,7 +241,8 @@ fun BaseSimpleActivity.handleMediaManagementPrompt(callback: () -> Unit) {
         if (Environment.isExternalStorageManager()) {
             callback()
         } else {
-            var messagePrompt = getString(com.simplemobiletools.commons.R.string.access_storage_prompt)
+            var messagePrompt =
+                getString(com.simplemobiletools.commons.R.string.access_storage_prompt)
             messagePrompt += if (isSPlus()) {
                 "\n\n${getString(R.string.media_management_alternative)}"
             } else {
@@ -162,6 +266,7 @@ fun BaseSimpleActivity.handleMediaManagementPrompt(callback: () -> Unit) {
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.R)
 fun BaseSimpleActivity.launchGrantAllFilesIntent() {
     try {
         val intent = Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION)
@@ -179,20 +284,20 @@ fun BaseSimpleActivity.launchGrantAllFilesIntent() {
     }
 }
 
-fun AppCompatActivity.showSystemUI(toggleActionBarVisibility: Boolean) {
+fun AppCompatActivity.showSystemUI() {
     window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LAYOUT_STABLE or
-        View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or
-        View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+            View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or
+            View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
 }
 
-fun AppCompatActivity.hideSystemUI(toggleActionBarVisibility: Boolean) {
+fun AppCompatActivity.hideSystemUI() {
     window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LAYOUT_STABLE or
-        View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or
-        View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
-        View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or
-        View.SYSTEM_UI_FLAG_LOW_PROFILE or
-        View.SYSTEM_UI_FLAG_FULLSCREEN or
-        View.SYSTEM_UI_FLAG_IMMERSIVE
+            View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or
+            View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
+            View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or
+            View.SYSTEM_UI_FLAG_LOW_PROFILE or
+            View.SYSTEM_UI_FLAG_FULLSCREEN or
+            View.SYSTEM_UI_FLAG_IMMERSIVE
 }
 
 fun BaseSimpleActivity.addNoMedia(path: String, callback: () -> Unit) {
@@ -268,7 +373,11 @@ fun BaseSimpleActivity.removeNoMedia(path: String, callback: (() -> Unit)? = nul
     }
 }
 
-fun BaseSimpleActivity.toggleFileVisibility(oldPath: String, hide: Boolean, callback: ((newPath: String) -> Unit)? = null) {
+fun BaseSimpleActivity.toggleFileVisibility(
+    oldPath: String,
+    hide: Boolean,
+    callback: ((newPath: String) -> Unit)? = null
+) {
     val path = oldPath.getParentPath()
     var filename = oldPath.getFilenameFromPath()
     if ((hide && filename.startsWith('.')) || (!hide && !filename.startsWith('.'))) {
@@ -294,7 +403,11 @@ fun BaseSimpleActivity.toggleFileVisibility(oldPath: String, hide: Boolean, call
     }
 }
 
-fun BaseSimpleActivity.tryCopyMoveFilesTo(fileDirItems: ArrayList<FileDirItem>, isCopyOperation: Boolean, callback: (destinationPath: String) -> Unit) {
+fun BaseSimpleActivity.tryCopyMoveFilesTo(
+    fileDirItems: ArrayList<FileDirItem>,
+    isCopyOperation: Boolean,
+    callback: (destinationPath: String) -> Unit
+) {
     if (fileDirItems.isEmpty()) {
         toast(com.simplemobiletools.commons.R.string.unknown_error_occurred)
         return
@@ -305,7 +418,15 @@ fun BaseSimpleActivity.tryCopyMoveFilesTo(fileDirItems: ArrayList<FileDirItem>, 
         val destination = it
         handleSAFDialog(source) {
             if (it) {
-                copyMoveFilesTo(fileDirItems, source.trimEnd('/'), destination, isCopyOperation, true, config.shouldShowHidden, callback)
+                copyMoveFilesTo(
+                    fileDirItems,
+                    source.trimEnd('/'),
+                    destination,
+                    isCopyOperation,
+                    true,
+                    config.shouldShowHidden,
+                    callback
+                )
             }
         }
     }
@@ -329,7 +450,10 @@ fun BaseSimpleActivity.tryDeleteFileDirItem(
     }
 }
 
-fun BaseSimpleActivity.movePathsInRecycleBin(paths: ArrayList<String>, callback: ((wasSuccess: Boolean) -> Unit)?) {
+fun BaseSimpleActivity.movePathsInRecycleBin(
+    paths: ArrayList<String>,
+    callback: ((wasSuccess: Boolean) -> Unit)?
+) {
     ensureBackgroundThread {
         var pathsCnt = paths.size
         val OTGPath = config.OTGPath
@@ -341,7 +465,8 @@ fun BaseSimpleActivity.movePathsInRecycleBin(paths: ArrayList<String>, callback:
                 try {
                     val destination = "$recycleBinPath/$source"
                     val fileDocument = getSomeDocumentFile(source)
-                    inputStream = applicationContext.contentResolver.openInputStream(fileDocument?.uri!!)
+                    inputStream =
+                        applicationContext.contentResolver.openInputStream(fileDocument?.uri!!)
                     out = getFileOutputStreamSync(destination, source.getMimeType())
 
                     var copiedSize = 0L
@@ -355,8 +480,15 @@ fun BaseSimpleActivity.movePathsInRecycleBin(paths: ArrayList<String>, callback:
 
                     out?.flush()
 
-                    if (fileDocument.getItemSize(true) == copiedSize && getDoesFilePathExist(destination)) {
-                        mediaDB.updateDeleted("$RECYCLE_BIN$source", System.currentTimeMillis(), source)
+                    if (fileDocument.getItemSize(true) == copiedSize && getDoesFilePathExist(
+                            destination
+                        )
+                    ) {
+                        mediaDB.updateDeleted(
+                            "$RECYCLE_BIN$source",
+                            System.currentTimeMillis(),
+                            source
+                        )
                         pathsCnt--
                     }
                 } catch (e: Exception) {
@@ -372,7 +504,11 @@ fun BaseSimpleActivity.movePathsInRecycleBin(paths: ArrayList<String>, callback:
                 val lastModified = file.lastModified()
                 try {
                     if (file.copyRecursively(internalFile, true)) {
-                        mediaDB.updateDeleted("$RECYCLE_BIN$source", System.currentTimeMillis(), source)
+                        mediaDB.updateDeleted(
+                            "$RECYCLE_BIN$source",
+                            System.currentTimeMillis(),
+                            source
+                        )
                         pathsCnt--
 
                         if (config.keepLastModified && lastModified != 0L) {
@@ -446,7 +582,11 @@ fun BaseSimpleActivity.restoreRecycleBinPaths(paths: ArrayList<String>, callback
                 out?.flush()
 
                 if (File(source).length() == copiedSize) {
-                    mediaDB.updateDeleted(destination.removePrefix(recycleBinPath), 0, "$RECYCLE_BIN${source.removePrefix(recycleBinPath)}")
+                    mediaDB.updateDeleted(
+                        destination.removePrefix(recycleBinPath),
+                        0,
+                        "$RECYCLE_BIN${source.removePrefix(recycleBinPath)}"
+                    )
                 }
                 newPaths.add(destination)
 
@@ -506,7 +646,10 @@ fun BaseSimpleActivity.showRecycleBinEmptyingDialog(callback: () -> Unit) {
     }
 }
 
-fun BaseSimpleActivity.updateFavoritePaths(fileDirItems: ArrayList<FileDirItem>, destination: String) {
+fun BaseSimpleActivity.updateFavoritePaths(
+    fileDirItems: ArrayList<FileDirItem>,
+    destination: String
+) {
     ensureBackgroundThread {
         fileDirItems.forEach {
             val newPath = "$destination/${it.name}"
@@ -548,8 +691,10 @@ fun AppCompatActivity.fixDateTaken(
 
             for (path in paths) {
                 try {
-                    val dateTime: String = ExifInterface(path).getAttribute(ExifInterface.TAG_DATETIME_ORIGINAL)
-                        ?: ExifInterface(path).getAttribute(ExifInterface.TAG_DATETIME) ?: continue
+                    val dateTime: String =
+                        ExifInterface(path).getAttribute(ExifInterface.TAG_DATETIME_ORIGINAL)
+                            ?: ExifInterface(path).getAttribute(ExifInterface.TAG_DATETIME)
+                            ?: continue
 
                     // some formats contain a "T" in the middle, some don't
                     // sample dates: 2015-07-26T14:55:23, 2018:09:05 15:09:05
@@ -635,7 +780,13 @@ fun AppCompatActivity.fixDateTaken(
     }
 }
 
-fun BaseSimpleActivity.saveRotatedImageToFile(oldPath: String, newPath: String, degrees: Int, showToasts: Boolean, callback: () -> Unit) {
+fun BaseSimpleActivity.saveRotatedImageToFile(
+    oldPath: String,
+    newPath: String,
+    degrees: Int,
+    showToasts: Boolean,
+    callback: () -> Unit
+) {
     var newDegrees = degrees
     if (newDegrees < 0) {
         newDegrees += 360
@@ -690,7 +841,12 @@ fun BaseSimpleActivity.saveRotatedImageToFile(oldPath: String, newPath: String, 
 }
 
 @TargetApi(Build.VERSION_CODES.N)
-fun Activity.tryRotateByExif(path: String, degrees: Int, showToasts: Boolean, callback: () -> Unit): Boolean {
+fun Activity.tryRotateByExif(
+    path: String,
+    degrees: Int,
+    showToasts: Boolean,
+    callback: () -> Unit
+): Boolean {
     return try {
         val file = File(path)
         val oldLastModified = file.lastModified()
@@ -778,7 +934,10 @@ fun BaseSimpleActivity.ensureWriteAccess(path: String, callback: () -> Unit) {
     }
 }
 
-fun BaseSimpleActivity.launchResizeMultipleImagesDialog(paths: List<String>, callback: (() -> Unit)? = null) {
+fun BaseSimpleActivity.launchResizeMultipleImagesDialog(
+    paths: List<String>,
+    callback: (() -> Unit)? = null
+) {
     ensureBackgroundThread {
         val imagePaths = mutableListOf<String>()
         val imageSizes = mutableListOf<Point>()
@@ -828,14 +987,20 @@ fun BaseSimpleActivity.launchResizeImageDialog(path: String, callback: (() -> Un
     }
 }
 
-fun BaseSimpleActivity.resizeImage(oldPath: String, newPath: String, size: Point, callback: (success: Boolean) -> Unit) {
+fun BaseSimpleActivity.resizeImage(
+    oldPath: String,
+    newPath: String,
+    size: Point,
+    callback: (success: Boolean) -> Unit
+) {
     var oldExif: ExifInterface? = null
     if (isNougatPlus()) {
         val inputStream = contentResolver.openInputStream(Uri.fromFile(File(oldPath)))
         oldExif = ExifInterface(inputStream!!)
     }
 
-    val newBitmap = Glide.with(applicationContext).asBitmap().load(oldPath).submit(size.x, size.y).get()
+    val newBitmap =
+        Glide.with(applicationContext).asBitmap().load(oldPath).submit(size.x, size.y).get()
 
     val newFile = File(newPath)
     val newFileDirItem = FileDirItem(newPath, newPath.getFilenameFromPath())
@@ -860,7 +1025,11 @@ fun BaseSimpleActivity.resizeImage(oldPath: String, newPath: String, size: Point
     }
 }
 
-fun BaseSimpleActivity.rescanPathsAndUpdateLastModified(paths: ArrayList<String>, pathLastModifiedMap: Map<String, Long>, callback: () -> Unit) {
+fun BaseSimpleActivity.rescanPathsAndUpdateLastModified(
+    paths: ArrayList<String>,
+    pathLastModifiedMap: Map<String, Long>,
+    callback: () -> Unit
+) {
     fixDateTaken(paths, false)
     for (path in paths) {
         val file = File(path)
@@ -888,7 +1057,8 @@ fun Activity.getShortcutImage(tmb: String, drawable: Drawable, callback: () -> U
             .diskCacheStrategy(DiskCacheStrategy.NONE)
             .fitCenter()
 
-        val size = resources.getDimension(com.simplemobiletools.commons.R.dimen.shortcut_size).toInt()
+        val size =
+            resources.getDimension(com.simplemobiletools.commons.R.dimen.shortcut_size).toInt()
         val builder = Glide.with(this)
             .asDrawable()
             .load(tmb)
@@ -930,7 +1100,11 @@ fun Activity.showFileOnMap(path: String) {
 
 fun Activity.handleExcludedFolderPasswordProtection(callback: () -> Unit) {
     if (config.isExcludedPasswordProtectionOn) {
-        SecurityDialog(this, config.excludedPasswordHash, config.excludedProtectionType) { _, _, success ->
+        SecurityDialog(
+            this,
+            config.excludedPasswordHash,
+            config.excludedProtectionType
+        ) { _, _, success ->
             if (success) {
                 callback()
             }

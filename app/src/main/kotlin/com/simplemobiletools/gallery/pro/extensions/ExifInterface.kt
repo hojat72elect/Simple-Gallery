@@ -45,8 +45,8 @@ private class ExifInterfaceAttributes {
 
         private fun isExif(field: Field): Boolean {
             return field.type == String::class.java &&
-                isPublicStaticFinal(field.modifiers) &&
-                field.name.startsWith("TAG_")
+                    isPublicStaticFinal(field.modifiers) &&
+                    field.name.startsWith("TAG_")
         }
 
         private const val publicStaticFinal = Modifier.PUBLIC or Modifier.STATIC or Modifier.FINAL

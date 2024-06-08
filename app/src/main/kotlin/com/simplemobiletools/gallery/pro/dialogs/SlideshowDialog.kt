@@ -21,7 +21,9 @@ class SlideshowDialog(val activity: BaseSimpleActivity, val callback: () -> Unit
 
     init {
         binding = DialogSlideshowBinding.inflate(activity.layoutInflater).apply {
-            intervalHint.hint = activity.getString(com.simplemobiletools.commons.R.string.seconds_raw).replaceFirstChar { it.uppercaseChar() }
+            intervalHint.hint =
+                activity.getString(com.simplemobiletools.commons.R.string.seconds_raw)
+                    .replaceFirstChar { it.uppercaseChar() }
             intervalValue.setOnClickListener {
                 intervalValue.selectAll()
             }

@@ -26,7 +26,12 @@ class HiddenFoldersActivity : SimpleActivity(), RefreshRecyclerViewListener {
         setupOptionsMenu()
         binding.manageFoldersToolbar.title = getString(R.string.hidden_folders)
 
-        updateMaterialActivityViews(binding.manageFoldersCoordinator, binding.manageFoldersList, useTransparentNavigation = true, useTopSearchMenu = false)
+        updateMaterialActivityViews(
+            binding.manageFoldersCoordinator,
+            binding.manageFoldersList,
+            useTransparentNavigation = true,
+            useTopSearchMenu = false
+        )
         setupMaterialScrollListener(binding.manageFoldersList, binding.manageFoldersToolbar)
     }
 
@@ -44,7 +49,8 @@ class HiddenFoldersActivity : SimpleActivity(), RefreshRecyclerViewListener {
                     setTextColor(getProperTextColor())
                 }
 
-                val adapter = ManageHiddenFoldersAdapter(this, it, this, binding.manageFoldersList) {}
+                val adapter =
+                    ManageHiddenFoldersAdapter(this, it, this, binding.manageFoldersList) {}
                 binding.manageFoldersList.adapter = adapter
             }
         }
@@ -65,8 +71,15 @@ class HiddenFoldersActivity : SimpleActivity(), RefreshRecyclerViewListener {
     }
 
     private fun addFolder() {
-        FilePickerDialog(this, config.lastFilepickerPath, false, config.shouldShowHidden, false, true) {
-            config.lastFilepickerPath = it
+        FilePickerDialog(
+            activity = this,
+            currPath = config.lastFilePickerPath,
+            pickFile = false,
+            showHidden = config.shouldShowHidden,
+            showFAB = false,
+            canAddShowHiddenButton = true
+        ) {
+            config.lastFilePickerPath = it
             ensureBackgroundThread {
                 addNoMedia(it) {
                     updateFolders()

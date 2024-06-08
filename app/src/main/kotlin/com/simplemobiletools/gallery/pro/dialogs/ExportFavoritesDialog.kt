@@ -4,22 +4,34 @@ import androidx.appcompat.app.AlertDialog
 import com.simplemobiletools.commons.activities.BaseSimpleActivity
 import com.simplemobiletools.commons.dialogs.ConfirmationDialog
 import com.simplemobiletools.commons.dialogs.FilePickerDialog
-import com.simplemobiletools.commons.extensions.*
+import com.simplemobiletools.commons.extensions.beGone
+import com.simplemobiletools.commons.extensions.getAlertDialogBuilder
+import com.simplemobiletools.commons.extensions.getDoesFilePathExist
+import com.simplemobiletools.commons.extensions.getFilenameFromPath
+import com.simplemobiletools.commons.extensions.humanizePath
+import com.simplemobiletools.commons.extensions.internalStoragePath
+import com.simplemobiletools.commons.extensions.isAValidFilename
+import com.simplemobiletools.commons.extensions.setupDialogStuff
+import com.simplemobiletools.commons.extensions.toast
+import com.simplemobiletools.commons.extensions.value
 import com.simplemobiletools.gallery.pro.R
 import com.simplemobiletools.gallery.pro.databinding.DialogExportFavoritesBinding
 import com.simplemobiletools.gallery.pro.extensions.config
 
 class ExportFavoritesDialog(
-    val activity: BaseSimpleActivity, val defaultFilename: String, val hidePath: Boolean,
+    val activity: BaseSimpleActivity,
+    private val defaultFilename: String,
+    private val hidePath: Boolean,
     callback: (path: String, filename: String) -> Unit
 ) {
     init {
         val lastUsedFolder = activity.config.lastExportedFavoritesFolder
-        var folder = if (lastUsedFolder.isNotEmpty() && activity.getDoesFilePathExist(lastUsedFolder)) {
-            lastUsedFolder
-        } else {
-            activity.internalStoragePath
-        }
+        var folder =
+            if (lastUsedFolder.isNotEmpty() && activity.getDoesFilePathExist(lastUsedFolder)) {
+                lastUsedFolder
+            } else {
+                activity.internalStoragePath
+            }
 
         val binding = DialogExportFavoritesBinding.inflate(activity.layoutInflater).apply {
             exportFavoritesFilename.setText(defaultFilename.removeSuffix(".txt"))
@@ -42,7 +54,11 @@ class ExportFavoritesDialog(
             .setPositiveButton(com.simplemobiletools.commons.R.string.ok, null)
             .setNegativeButton(com.simplemobiletools.commons.R.string.cancel, null)
             .apply {
-                activity.setupDialogStuff(binding.root, this, R.string.export_favorite_paths) { alertDialog ->
+                activity.setupDialogStuff(
+                    binding.root,
+                    this,
+                    R.string.export_favorite_paths
+                ) { alertDialog ->
                     alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
                         var filename = binding.exportFavoritesFilename.value
                         if (filename.isEmpty()) {

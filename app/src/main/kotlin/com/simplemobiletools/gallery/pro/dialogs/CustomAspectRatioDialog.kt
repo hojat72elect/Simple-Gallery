@@ -10,7 +10,9 @@ import com.simplemobiletools.commons.extensions.value
 import com.simplemobiletools.gallery.pro.databinding.DialogCustomAspectRatioBinding
 
 class CustomAspectRatioDialog(
-    val activity: BaseSimpleActivity, val defaultCustomAspectRatio: Pair<Float, Float>?, val callback: (aspectRatio: Pair<Float, Float>) -> Unit
+    val activity: BaseSimpleActivity,
+    private val defaultCustomAspectRatio: Pair<Float, Float>?,
+    val callback: (aspectRatio: Pair<Float, Float>) -> Unit
 ) {
     init {
         val binding = DialogCustomAspectRatioBinding.inflate(activity.layoutInflater).apply {

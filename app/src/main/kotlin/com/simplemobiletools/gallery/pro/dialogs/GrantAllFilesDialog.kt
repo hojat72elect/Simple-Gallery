@@ -14,10 +14,10 @@ class GrantAllFilesDialog(val activity: BaseSimpleActivity) {
         binding.grantAllFilesImage.applyColorFilter(activity.getProperTextColor())
 
         activity.getAlertDialogBuilder()
-            .setPositiveButton(com.simplemobiletools.commons.R.string.ok) { dialog, which -> activity.launchGrantAllFilesIntent() }
+            .setPositiveButton(com.simplemobiletools.commons.R.string.ok) { _, _ -> activity.launchGrantAllFilesIntent() }
             .setNegativeButton(com.simplemobiletools.commons.R.string.cancel, null)
             .apply {
-                activity.setupDialogStuff(binding.root, this) { alertDialog -> }
+                activity.setupDialogStuff(binding.root, this) { }
             }
     }
 }

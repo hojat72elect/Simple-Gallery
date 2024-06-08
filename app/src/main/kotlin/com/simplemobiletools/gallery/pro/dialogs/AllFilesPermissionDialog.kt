@@ -1,5 +1,6 @@
 package com.simplemobiletools.gallery.pro.dialogs
 
+import android.annotation.SuppressLint
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import com.simplemobiletools.commons.activities.BaseSimpleActivity
@@ -7,17 +8,25 @@ import com.simplemobiletools.commons.extensions.getAlertDialogBuilder
 import com.simplemobiletools.commons.extensions.setupDialogStuff
 import com.simplemobiletools.gallery.pro.R
 
+@SuppressLint("InflateParams")
 class AllFilesPermissionDialog(
-    val activity: BaseSimpleActivity, message: String = "", val callback: (result: Boolean) -> Unit, val neutralPressed: () -> Unit
+    val activity: BaseSimpleActivity,
+    message: String = "",
+    val callback: (result: Boolean) -> Unit,
+    val neutralPressed: () -> Unit
 ) {
     private var dialog: AlertDialog? = null
 
     init {
-        val view = activity.layoutInflater.inflate(com.simplemobiletools.commons.R.layout.dialog_message, null)
+        val view = activity.layoutInflater.inflate(
+            com.simplemobiletools.commons.R.layout.dialog_message,
+            null
+        )
         view.findViewById<TextView>(R.id.message).text = message
 
-        activity.getAlertDialogBuilder().setPositiveButton(R.string.all_files) { dialog, which -> positivePressed() }
-            .setNeutralButton(R.string.media_only) { dialog, which -> neutralPressed() }
+        activity.getAlertDialogBuilder()
+            .setPositiveButton(R.string.all_files) { _, _ -> positivePressed() }
+            .setNeutralButton(R.string.media_only) { _, _ -> neutralPressed() }
             .apply {
                 activity.setupDialogStuff(view, this) { alertDialog ->
                     dialog = alertDialog

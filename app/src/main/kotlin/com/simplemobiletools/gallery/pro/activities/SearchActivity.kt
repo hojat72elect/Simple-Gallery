@@ -6,16 +6,30 @@ import android.view.ViewGroup
 import android.widget.RelativeLayout
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.simplemobiletools.commons.extensions.*
+import com.simplemobiletools.commons.extensions.beGone
+import com.simplemobiletools.commons.extensions.beVisible
+import com.simplemobiletools.commons.extensions.deleteFiles
+import com.simplemobiletools.commons.extensions.getProperBackgroundColor
+import com.simplemobiletools.commons.extensions.getProperPrimaryColor
+import com.simplemobiletools.commons.extensions.getProperTextColor
+import com.simplemobiletools.commons.extensions.isMediaFile
+import com.simplemobiletools.commons.extensions.isVideoFast
+import com.simplemobiletools.commons.extensions.recycleBinPath
+import com.simplemobiletools.commons.extensions.toast
+import com.simplemobiletools.commons.extensions.viewBinding
 import com.simplemobiletools.commons.helpers.VIEW_TYPE_GRID
 import com.simplemobiletools.commons.helpers.ensureBackgroundThread
 import com.simplemobiletools.commons.models.FileDirItem
 import com.simplemobiletools.commons.views.MyGridLayoutManager
 import com.simplemobiletools.gallery.pro.R
 import com.simplemobiletools.gallery.pro.adapters.MediaAdapter
-import com.simplemobiletools.gallery.pro.asynctasks.GetMediaAsynctask
+import com.simplemobiletools.gallery.pro.asynctasks.GetMediaAsyncTask
 import com.simplemobiletools.gallery.pro.databinding.ActivitySearchBinding
-import com.simplemobiletools.gallery.pro.extensions.*
+import com.simplemobiletools.gallery.pro.extensions.config
+import com.simplemobiletools.gallery.pro.extensions.deleteDBPath
+import com.simplemobiletools.gallery.pro.extensions.getCachedMedia
+import com.simplemobiletools.gallery.pro.extensions.movePathsInRecycleBin
+import com.simplemobiletools.gallery.pro.extensions.openPath
 import com.simplemobiletools.gallery.pro.helpers.GridSpacingItemDecoration
 import com.simplemobiletools.gallery.pro.helpers.MediaFetcher
 import com.simplemobiletools.gallery.pro.helpers.PATH
@@ -28,7 +42,7 @@ import java.io.File
 class SearchActivity : SimpleActivity(), MediaOperationsListener {
     private var mLastSearchedText = ""
 
-    private var mCurrAsyncTask: GetMediaAsynctask? = null
+    private var mCurrAsyncTask: GetMediaAsyncTask? = null
     private var mAllMedia = ArrayList<ThumbnailItem>()
 
     private val binding by viewBinding(ActivitySearchBinding::inflate)
@@ -38,7 +52,12 @@ class SearchActivity : SimpleActivity(), MediaOperationsListener {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
         setupOptionsMenu()
-        updateMaterialActivityViews(binding.searchCoordinator, binding.searchGrid, useTransparentNavigation = true, useTopSearchMenu = true)
+        updateMaterialActivityViews(
+            binding.searchCoordinator,
+            binding.searchGrid,
+            useTransparentNavigation = true,
+            useTopSearchMenu = true
+        )
         binding.searchEmptyTextPlaceholder.setTextColor(getProperTextColor())
         getAllMedia()
         binding.searchFastscroller.updateColors(getProperPrimaryColor())
@@ -92,12 +111,15 @@ class SearchActivity : SimpleActivity(), MediaOperationsListener {
     private fun textChanged(text: String) {
         ensureBackgroundThread {
             try {
-                val filtered = mAllMedia.filter { it is Medium && it.name.contains(text, true) } as ArrayList
+                val filtered =
+                    mAllMedia.filter { it is Medium && it.name.contains(text, true) } as ArrayList
                 filtered.sortBy { it is Medium && !it.name.startsWith(text, true) }
-                val grouped = MediaFetcher(applicationContext).groupMedia(filtered as ArrayList<Medium>, "")
+                val grouped =
+                    MediaFetcher(applicationContext).groupMedia(filtered as ArrayList<Medium>, "")
                 runOnUiThread {
                     if (grouped.isEmpty()) {
-                        binding.searchEmptyTextPlaceholder.text = getString(com.simplemobiletools.commons.R.string.no_items_found)
+                        binding.searchEmptyTextPlaceholder.text =
+                            getString(com.simplemobiletools.commons.R.string.no_items_found)
                         binding.searchEmptyTextPlaceholder.beVisible()
                     } else {
                         binding.searchEmptyTextPlaceholder.beGone()
@@ -114,7 +136,15 @@ class SearchActivity : SimpleActivity(), MediaOperationsListener {
     private fun setupAdapter() {
         val currAdapter = binding.searchGrid.adapter
         if (currAdapter == null) {
-            MediaAdapter(this, mAllMedia, this, false, false, "", binding.searchGrid) {
+            MediaAdapter(
+                activity = this,
+                media = mAllMedia,
+                listener = this,
+                isAGetIntent = false,
+                allowMultiplePicks = false,
+                path = "",
+                recyclerView = binding.searchGrid
+            ) {
                 if (it is Medium) {
                     itemClicked(it.path)
                 }
@@ -142,7 +172,14 @@ class SearchActivity : SimpleActivity(), MediaOperationsListener {
 
             val spanCount = config.mediaColumnCnt
             val spacing = config.thumbnailSpacing
-            val decoration = GridSpacingItemDecoration(spanCount, spacing, config.scrollHorizontally, config.fileRoundedCorners, media, true)
+            val decoration = GridSpacingItemDecoration(
+                spanCount,
+                spacing,
+                config.scrollHorizontally,
+                config.fileRoundedCorners,
+                media,
+                true
+            )
             binding.searchGrid.addItemDecoration(decoration)
         }
     }
@@ -180,10 +217,16 @@ class SearchActivity : SimpleActivity(), MediaOperationsListener {
         val layoutManager = binding.searchGrid.layoutManager as MyGridLayoutManager
         if (config.scrollHorizontally) {
             layoutManager.orientation = RecyclerView.HORIZONTAL
-            binding.searchGrid.layoutParams = RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT)
+            binding.searchGrid.layoutParams = RelativeLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.MATCH_PARENT
+            )
         } else {
             layoutManager.orientation = RecyclerView.VERTICAL
-            binding.searchGrid.layoutParams = RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+            binding.searchGrid.layoutParams = RelativeLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            )
         }
 
         layoutManager.spanCount = config.mediaColumnCnt
@@ -225,7 +268,7 @@ class SearchActivity : SimpleActivity(), MediaOperationsListener {
 
     private fun startAsyncTask(updateItems: Boolean) {
         mCurrAsyncTask?.stopFetching()
-        mCurrAsyncTask = GetMediaAsynctask(applicationContext, "", showAll = true) {
+        mCurrAsyncTask = GetMediaAsyncTask(applicationContext, "", showAll = true) {
             mAllMedia = it.clone() as ArrayList<ThumbnailItem>
             if (updateItems) {
                 textChanged(mLastSearchedText)
@@ -240,13 +283,21 @@ class SearchActivity : SimpleActivity(), MediaOperationsListener {
     }
 
     override fun tryDeleteFiles(fileDirItems: ArrayList<FileDirItem>, skipRecycleBin: Boolean) {
-        val filtered = fileDirItems.filter { File(it.path).isFile && it.path.isMediaFile() } as ArrayList
+        val filtered =
+            fileDirItems.filter { File(it.path).isFile && it.path.isMediaFile() } as ArrayList
         if (filtered.isEmpty()) {
             return
         }
 
-        if (config.useRecycleBin && !skipRecycleBin && !filtered.first().path.startsWith(recycleBinPath)) {
-            val movingItems = resources.getQuantityString(com.simplemobiletools.commons.R.plurals.moving_items_into_bin, filtered.size, filtered.size)
+        if (config.useRecycleBin && !skipRecycleBin && !filtered.first().path.startsWith(
+                recycleBinPath
+            )
+        ) {
+            val movingItems = resources.getQuantityString(
+                com.simplemobiletools.commons.R.plurals.moving_items_into_bin,
+                filtered.size,
+                filtered.size
+            )
             toast(movingItems)
 
             movePathsInRecycleBin(filtered.map { it.path } as ArrayList<String>) {
@@ -257,7 +308,11 @@ class SearchActivity : SimpleActivity(), MediaOperationsListener {
                 }
             }
         } else {
-            val deletingItems = resources.getQuantityString(com.simplemobiletools.commons.R.plurals.deleting_items, filtered.size, filtered.size)
+            val deletingItems = resources.getQuantityString(
+                com.simplemobiletools.commons.R.plurals.deleting_items,
+                filtered.size,
+                filtered.size
+            )
             toast(deletingItems)
             deleteFilteredFiles(filtered)
         }
@@ -274,9 +329,9 @@ class SearchActivity : SimpleActivity(), MediaOperationsListener {
 
             ensureBackgroundThread {
                 val useRecycleBin = config.useRecycleBin
-                filtered.forEach {
-                    if (it.path.startsWith(recycleBinPath) || !useRecycleBin) {
-                        deleteDBPath(it.path)
+                filtered.forEach { filteredFileDirectory ->
+                    if (filteredFileDirectory.path.startsWith(recycleBinPath) || !useRecycleBin) {
+                        deleteDBPath(filteredFileDirectory.path)
                     }
                 }
             }

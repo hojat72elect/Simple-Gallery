@@ -18,7 +18,7 @@ import com.simplemobiletools.gallery.pro.extensions.config
 import com.simplemobiletools.gallery.pro.extensions.updateDirectoryPath
 
 open class SimpleActivity : BaseSimpleActivity() {
-    val observer = object : ContentObserver(null) {
+    private val observer = object : ContentObserver(null) {
         override fun onChange(selfChange: Boolean, uri: Uri?) {
             super.onChange(selfChange, uri)
             if (uri != null) {
@@ -71,8 +71,16 @@ open class SimpleActivity : BaseSimpleActivity() {
 
     protected fun registerFileUpdateListener() {
         try {
-            contentResolver.registerContentObserver(Images.Media.EXTERNAL_CONTENT_URI, true, observer)
-            contentResolver.registerContentObserver(Video.Media.EXTERNAL_CONTENT_URI, true, observer)
+            contentResolver.registerContentObserver(
+                Images.Media.EXTERNAL_CONTENT_URI,
+                true,
+                observer
+            )
+            contentResolver.registerContentObserver(
+                Video.Media.EXTERNAL_CONTENT_URI,
+                true,
+                observer
+            )
         } catch (ignored: Exception) {
         }
     }
@@ -85,8 +93,15 @@ open class SimpleActivity : BaseSimpleActivity() {
     }
 
     protected fun showAddIncludedFolderDialog(callback: () -> Unit) {
-        FilePickerDialog(this, config.lastFilepickerPath, false, config.shouldShowHidden, false, true) {
-            config.lastFilepickerPath = it
+        FilePickerDialog(
+            activity = this,
+            currPath = config.lastFilePickerPath,
+            pickFile = false,
+            showHidden = config.shouldShowHidden,
+            showFAB = false,
+            canAddShowHiddenButton = true
+        ) {
+            config.lastFilePickerPath = it
             config.addIncludedFolder(it)
             callback()
             ensureBackgroundThread {
