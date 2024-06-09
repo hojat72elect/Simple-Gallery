@@ -17,7 +17,7 @@ import com.simplemobiletools.commons.extensions.getExifProperties
 import com.simplemobiletools.commons.extensions.getLongValue
 import com.simplemobiletools.commons.extensions.getOTGPublicPath
 import com.simplemobiletools.commons.extensions.getResolution
-import com.simplemobiletools.commons.extensions.isPathOnOTG
+import com.simplemobiletools.gallery.pro.extensions.isPathOnOTG
 import com.simplemobiletools.gallery.pro.extensions.config
 import com.simplemobiletools.gallery.pro.helpers.EXT_CAMERA_MODEL
 import com.simplemobiletools.gallery.pro.helpers.EXT_DATE_TAKEN

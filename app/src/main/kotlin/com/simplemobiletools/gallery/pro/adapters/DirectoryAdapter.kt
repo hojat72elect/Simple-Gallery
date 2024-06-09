@@ -14,6 +14,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.RelativeLayout
 import androidx.annotation.RequiresApi
+import androidx.media3.common.util.UnstableApi
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
@@ -28,10 +29,10 @@ import com.simplemobiletools.commons.dialogs.PropertiesDialog
 import com.simplemobiletools.commons.dialogs.RenameItemDialog
 import com.simplemobiletools.commons.dialogs.RenameItemsDialog
 import com.simplemobiletools.commons.dialogs.SecurityDialog
-import com.simplemobiletools.commons.extensions.applyColorFilter
-import com.simplemobiletools.commons.extensions.beGone
-import com.simplemobiletools.commons.extensions.beVisible
-import com.simplemobiletools.commons.extensions.beVisibleIf
+import com.simplemobiletools.gallery.pro.extensions.applyColorFilter
+import com.simplemobiletools.gallery.pro.extensions.beGone
+import com.simplemobiletools.gallery.pro.extensions.beVisible
+import com.simplemobiletools.gallery.pro.extensions.beVisibleIf
 import com.simplemobiletools.commons.extensions.containsNoMedia
 import com.simplemobiletools.commons.extensions.convertToBitmap
 import com.simplemobiletools.commons.extensions.doesThisOrParentHaveNoMedia
@@ -43,14 +44,14 @@ import com.simplemobiletools.commons.extensions.handleDeletePasswordProtection
 import com.simplemobiletools.commons.extensions.handleLockedFolderOpening
 import com.simplemobiletools.commons.extensions.isAStorageRootFolder
 import com.simplemobiletools.commons.extensions.isExternalStorageManager
-import com.simplemobiletools.commons.extensions.isGif
+import com.simplemobiletools.gallery.pro.extensions.isGif
 import com.simplemobiletools.commons.extensions.isImageFast
 import com.simplemobiletools.commons.extensions.isMediaFile
 import com.simplemobiletools.commons.extensions.isRawFast
-import com.simplemobiletools.commons.extensions.isSvg
+import com.simplemobiletools.gallery.pro.extensions.isSvg
 import com.simplemobiletools.commons.extensions.isVideoFast
-import com.simplemobiletools.commons.extensions.isVisible
-import com.simplemobiletools.commons.extensions.rescanPaths
+import com.simplemobiletools.gallery.pro.extensions.isVisible
+import com.simplemobiletools.gallery.pro.extensions.rescanPaths
 import com.simplemobiletools.commons.extensions.showErrorToast
 import com.simplemobiletools.commons.extensions.toast
 import com.simplemobiletools.commons.helpers.FAVORITES
@@ -111,7 +112,7 @@ import com.simplemobiletools.gallery.pro.models.Directory
 import java.io.File
 import java.util.Collections
 
-class DirectoryAdapter(
+@UnstableApi class DirectoryAdapter(
     activity: BaseSimpleActivity,
     var dirs: ArrayList<Directory>,
     val listener: DirectoryOperationsListener?,

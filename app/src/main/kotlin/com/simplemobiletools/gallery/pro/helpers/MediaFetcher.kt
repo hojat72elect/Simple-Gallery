@@ -22,11 +22,11 @@ import com.simplemobiletools.commons.extensions.getStringValue
 import com.simplemobiletools.commons.extensions.hasOTGConnected
 import com.simplemobiletools.commons.extensions.humanizePath
 import com.simplemobiletools.commons.extensions.isExternalStorageManager
-import com.simplemobiletools.commons.extensions.isGif
+import com.simplemobiletools.gallery.pro.extensions.isGif
 import com.simplemobiletools.commons.extensions.isImageFast
-import com.simplemobiletools.commons.extensions.isPathOnOTG
+import com.simplemobiletools.gallery.pro.extensions.isPathOnOTG
 import com.simplemobiletools.commons.extensions.isRawFast
-import com.simplemobiletools.commons.extensions.isSvg
+import com.simplemobiletools.gallery.pro.extensions.isSvg
 import com.simplemobiletools.commons.extensions.isVideoFast
 import com.simplemobiletools.commons.extensions.normalizeString
 import com.simplemobiletools.commons.extensions.queryCursor

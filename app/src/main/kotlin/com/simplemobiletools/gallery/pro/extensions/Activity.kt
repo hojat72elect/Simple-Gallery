@@ -4,6 +4,7 @@ import android.annotation.TargetApi
 import android.app.Activity
 import android.content.ContentProviderOperation
 import android.content.ContentValues
+import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -21,18 +22,26 @@ import android.provider.Settings
 import android.util.DisplayMetrics
 import android.view.View
 import androidx.annotation.RequiresApi
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.exifinterface.media.ExifInterface
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.DecodeFormat
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.RequestOptions
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.simplemobiletools.commons.activities.BaseSimpleActivity
+import com.simplemobiletools.commons.dialogs.AppSideloadedDialog
 import com.simplemobiletools.commons.dialogs.ConfirmationDialog
 import com.simplemobiletools.commons.dialogs.SecurityDialog
+import com.simplemobiletools.commons.extensions.baseConfig
 import com.simplemobiletools.commons.extensions.canManageMedia
+import com.simplemobiletools.commons.extensions.deleteAndroidSAFDirectory
+import com.simplemobiletools.commons.extensions.deleteDocumentWithSAFSdk30
 import com.simplemobiletools.commons.extensions.deleteFile
+import com.simplemobiletools.commons.extensions.deleteFileBg
 import com.simplemobiletools.commons.extensions.deleteFromMediaStore
+import com.simplemobiletools.commons.extensions.doesThisOrParentHaveNoMedia
 import com.simplemobiletools.commons.extensions.getCompressionFormat
 import com.simplemobiletools.commons.extensions.getDocumentFile
 import com.simplemobiletools.commons.extensions.getDoesFilePathExist
@@ -41,8 +50,10 @@ import com.simplemobiletools.commons.extensions.getFileKey
 import com.simplemobiletools.commons.extensions.getFileOutputStream
 import com.simplemobiletools.commons.extensions.getFileOutputStreamSync
 import com.simplemobiletools.commons.extensions.getFileUri
+import com.simplemobiletools.commons.extensions.getFileUrisFromFileDirItems
 import com.simplemobiletools.commons.extensions.getFilenameFromPath
 import com.simplemobiletools.commons.extensions.getImageResolution
+import com.simplemobiletools.commons.extensions.getIsPathDirectory
 import com.simplemobiletools.commons.extensions.getItemSize
 import com.simplemobiletools.commons.extensions.getMimeType
 import com.simplemobiletools.commons.extensions.getParentPath
@@ -50,10 +61,12 @@ import com.simplemobiletools.commons.extensions.getPicturesDirectoryPath
 import com.simplemobiletools.commons.extensions.getSomeDocumentFile
 import com.simplemobiletools.commons.extensions.hideKeyboard
 import com.simplemobiletools.commons.extensions.humanizePath
+import com.simplemobiletools.commons.extensions.internalStoragePath
 import com.simplemobiletools.commons.extensions.isAccessibleWithSAFSdk30
+import com.simplemobiletools.commons.extensions.isAppSideloaded
 import com.simplemobiletools.commons.extensions.isExternalStorageManager
 import com.simplemobiletools.commons.extensions.isInDownloadDir
-import com.simplemobiletools.commons.extensions.isJpg
+import com.simplemobiletools.commons.extensions.isRecycleBinPath
 import com.simplemobiletools.commons.extensions.isRestrictedSAFOnlyRoot
 import com.simplemobiletools.commons.extensions.isRestrictedWithSAFSdk30
 import com.simplemobiletools.commons.extensions.launchActivityIntent
@@ -62,17 +75,15 @@ import com.simplemobiletools.commons.extensions.openEditorIntent
 import com.simplemobiletools.commons.extensions.openPathIntent
 import com.simplemobiletools.commons.extensions.recycleBinPath
 import com.simplemobiletools.commons.extensions.renameFile
-import com.simplemobiletools.commons.extensions.rescanAndDeletePath
-import com.simplemobiletools.commons.extensions.rescanPaths
 import com.simplemobiletools.commons.extensions.saveExifRotation
 import com.simplemobiletools.commons.extensions.saveImageRotation
 import com.simplemobiletools.commons.extensions.setAsIntent
 import com.simplemobiletools.commons.extensions.sharePathIntent
 import com.simplemobiletools.commons.extensions.sharePathsIntent
-import com.simplemobiletools.commons.extensions.showErrorToast
 import com.simplemobiletools.commons.extensions.showLocationOnMap
 import com.simplemobiletools.commons.extensions.toFileDirItem
 import com.simplemobiletools.commons.extensions.toast
+import com.simplemobiletools.commons.extensions.trySAFFileDelete
 import com.simplemobiletools.commons.extensions.updateLastModified
 import com.simplemobiletools.commons.helpers.LICENSE_APNG
 import com.simplemobiletools.commons.helpers.LICENSE_CROPPER
@@ -89,6 +100,8 @@ import com.simplemobiletools.commons.helpers.LICENSE_RTL
 import com.simplemobiletools.commons.helpers.LICENSE_SANSELAN
 import com.simplemobiletools.commons.helpers.LICENSE_SUBSAMPLING
 import com.simplemobiletools.commons.helpers.NOMEDIA
+import com.simplemobiletools.commons.helpers.SIDELOADING_FALSE
+import com.simplemobiletools.commons.helpers.SIDELOADING_TRUE
 import com.simplemobiletools.commons.helpers.ensureBackgroundThread
 import com.simplemobiletools.commons.helpers.isNougatPlus
 import com.simplemobiletools.commons.helpers.isRPlus
@@ -359,7 +372,11 @@ fun BaseSimpleActivity.removeNoMedia(path: String, callback: (() -> Unit)? = nul
         return
     }
 
-    tryDeleteFileDirItem(file.toFileDirItem(applicationContext), false, false) {
+    tryDeleteFileDirItem(
+        fileDirItem = file.toFileDirItem(applicationContext),
+        allowDeleteFolder = false,
+        deleteFromDatabase = false
+    ) {
         callback?.invoke()
         deleteFromMediaStore(file.absolutePath) { needsRescan ->
             if (needsRescan) {
@@ -1118,5 +1135,213 @@ fun Activity.openRecycleBin() {
     Intent(this, MediaActivity::class.java).apply {
         putExtra(DIRECTORY, RECYCLE_BIN)
         startActivity(this)
+    }
+}
+
+fun Activity.getAlertDialogBuilder() = if (baseConfig.isUsingSystemTheme) {
+    MaterialAlertDialogBuilder(this)
+} else {
+    AlertDialog.Builder(this)
+}
+
+fun BaseSimpleActivity.deleteFiles(
+    files: List<FileDirItem>,
+    allowDeleteFolder: Boolean = false,
+    callback: ((wasSuccess: Boolean) -> Unit)? = null
+) {
+    ensureBackgroundThread {
+        deleteFilesBg(files, allowDeleteFolder, callback)
+    }
+}
+
+fun BaseSimpleActivity.deleteFilesBg(
+    files: List<FileDirItem>,
+    allowDeleteFolder: Boolean = false,
+    callback: ((wasSuccess: Boolean) -> Unit)? = null
+) {
+    if (files.isEmpty()) {
+        runOnUiThread {
+            callback?.invoke(true)
+        }
+        return
+    }
+
+    val firstFile = files.first()
+    val firstFilePath = firstFile.path
+    handleSAFDialog(firstFilePath) {
+        if (!it) {
+            return@handleSAFDialog
+        }
+
+        checkManageMediaOrHandleSAFDialogSdk30(firstFilePath) {
+            if (!it) {
+                return@checkManageMediaOrHandleSAFDialogSdk30
+            }
+
+            val recycleBinPath = firstFile.isRecycleBinPath(this)
+            if (canManageMedia() && !recycleBinPath && !firstFilePath.doesThisOrParentHaveNoMedia(
+                    java.util.HashMap(), null
+                )
+            ) {
+                val fileUris = getFileUrisFromFileDirItems(files)
+
+                deleteSDK30Uris(fileUris) { success ->
+                    runOnUiThread {
+                        callback?.invoke(success)
+                    }
+                }
+            } else {
+                deleteFilesCasual(files, allowDeleteFolder, callback)
+            }
+        }
+    }
+}
+
+private fun BaseSimpleActivity.deleteFilesCasual(
+    files: List<FileDirItem>,
+    allowDeleteFolder: Boolean = false,
+    callback: ((wasSuccess: Boolean) -> Unit)? = null
+) {
+    var wasSuccess = false
+    val failedFileDirItems = java.util.ArrayList<FileDirItem>()
+    files.forEachIndexed { index, file ->
+        deleteFileBg(file, allowDeleteFolder, true) {
+            if (it) {
+                wasSuccess = true
+            } else {
+                failedFileDirItems.add(file)
+            }
+
+            if (index == files.lastIndex) {
+                if (isRPlus() && failedFileDirItems.isNotEmpty()) {
+                    val fileUris = getFileUrisFromFileDirItems(failedFileDirItems)
+                    deleteSDK30Uris(fileUris) { success ->
+                        runOnUiThread {
+                            callback?.invoke(success)
+                        }
+                    }
+                } else {
+                    runOnUiThread {
+                        callback?.invoke(wasSuccess)
+                    }
+                }
+            }
+        }
+    }
+}
+
+fun BaseSimpleActivity.deleteFileBg(
+    fileDirItem: FileDirItem,
+    allowDeleteFolder: Boolean = false,
+    isDeletingMultipleFiles: Boolean,
+    callback: ((wasSuccess: Boolean) -> Unit)? = null,
+) {
+    val path = fileDirItem.path
+    if (isRestrictedSAFOnlyRoot(path)) {
+        deleteAndroidSAFDirectory(path, allowDeleteFolder, callback)
+    } else {
+        val file = File(path)
+        if (!isRPlus() && file.absolutePath.startsWith(internalStoragePath) && !file.canWrite()) {
+            callback?.invoke(false)
+            return
+        }
+
+        var fileDeleted =
+            !isPathOnOTG(path) && ((!file.exists() && file.length() == 0L) || file.delete())
+        if (fileDeleted) {
+            deleteFromMediaStore(path) { needsRescan ->
+                if (needsRescan) {
+                    rescanAndDeletePath(path) {
+                        runOnUiThread {
+                            callback?.invoke(true)
+                        }
+                    }
+                } else {
+                    runOnUiThread {
+                        callback?.invoke(true)
+                    }
+                }
+            }
+        } else {
+            if (getIsPathDirectory(file.absolutePath) && allowDeleteFolder) {
+                fileDeleted = deleteRecursively(file, this)
+            }
+
+            if (!fileDeleted) {
+                if (needsStupidWritePermissions(path)) {
+                    handleSAFDialog(path) {
+                        if (it) {
+                            trySAFFileDelete(fileDirItem, allowDeleteFolder, callback)
+                        }
+                    }
+                } else if (isAccessibleWithSAFSdk30(path)) {
+                    if (canManageMedia()) {
+                        deleteSdk30(fileDirItem, callback)
+                    } else {
+                        handleSAFDialogSdk30(path) {
+                            if (it) {
+                                deleteDocumentWithSAFSdk30(fileDirItem, allowDeleteFolder, callback)
+                            }
+                        }
+                    }
+                } else if (isRPlus() && !isDeletingMultipleFiles) {
+                    deleteSdk30(fileDirItem, callback)
+                } else {
+                    callback?.invoke(false)
+                }
+            }
+        }
+    }
+}
+
+private fun BaseSimpleActivity.deleteSdk30(
+    fileDirItem: FileDirItem,
+    callback: ((wasSuccess: Boolean) -> Unit)?
+) {
+    val fileUris = getFileUrisFromFileDirItems(arrayListOf(fileDirItem))
+    deleteSDK30Uris(fileUris) { success ->
+        runOnUiThread {
+            callback?.invoke(success)
+        }
+    }
+}
+
+private fun deleteRecursively(file: File, context: Context): Boolean {
+    if (file.isDirectory) {
+        val files = file.listFiles() ?: return file.delete()
+        for (child in files) {
+            deleteRecursively(child, context)
+        }
+    }
+
+    val deleted = file.delete()
+    if (deleted) {
+        context.deleteFromMediaStore(file.absolutePath)
+    }
+    return deleted
+}
+
+fun Activity.checkAppSideloading(): Boolean {
+    val isSideloaded = when (baseConfig.appSideloadingStatus) {
+        SIDELOADING_TRUE -> true
+        SIDELOADING_FALSE -> false
+        else -> isAppSideloaded()
+    }
+
+    baseConfig.appSideloadingStatus = if (isSideloaded) SIDELOADING_TRUE else SIDELOADING_FALSE
+    if (isSideloaded) {
+        showSideloadingDialog()
+    }
+
+    return isSideloaded
+}
+
+fun Activity.rescanPaths(paths: List<String>, callback: (() -> Unit)? = null) {
+    applicationContext.rescanPaths(paths, callback)
+}
+
+fun Activity.showSideloadingDialog() {
+    AppSideloadedDialog(this) {
+        finish()
     }
 }

@@ -10,8 +10,8 @@ import com.bumptech.glide.signature.ObjectKey
 import com.simplemobiletools.commons.extensions.formatDate
 import com.simplemobiletools.commons.extensions.formatSize
 import com.simplemobiletools.commons.extensions.getFilenameExtension
-import com.simplemobiletools.commons.extensions.isApng
-import com.simplemobiletools.commons.extensions.isWebP
+import com.simplemobiletools.gallery.pro.extensions.isApng
+import com.simplemobiletools.gallery.pro.extensions.isWebP
 import com.simplemobiletools.commons.helpers.SORT_BY_DATE_MODIFIED
 import com.simplemobiletools.commons.helpers.SORT_BY_NAME
 import com.simplemobiletools.commons.helpers.SORT_BY_PATH

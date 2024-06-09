@@ -12,6 +12,7 @@ import android.provider.MediaStore.Video
 import android.view.ViewGroup
 import android.widget.RelativeLayout
 import android.widget.Toast
+import androidx.media3.common.util.UnstableApi
 import androidx.recyclerview.widget.RecyclerView
 import com.simplemobiletools.commons.dialogs.ConfirmationDialog
 import com.simplemobiletools.commons.dialogs.CreateNewFolderDialog
@@ -19,11 +20,7 @@ import com.simplemobiletools.commons.dialogs.FilePickerDialog
 import com.simplemobiletools.commons.dialogs.RadioGroupDialog
 import com.simplemobiletools.commons.extensions.appLaunched
 import com.simplemobiletools.commons.extensions.areSystemAnimationsEnabled
-import com.simplemobiletools.commons.extensions.beGone
-import com.simplemobiletools.commons.extensions.beVisible
-import com.simplemobiletools.commons.extensions.beVisibleIf
 import com.simplemobiletools.commons.extensions.checkWhatsNew
-import com.simplemobiletools.commons.extensions.deleteFiles
 import com.simplemobiletools.commons.extensions.getDoesFilePathExist
 import com.simplemobiletools.commons.extensions.getFileCount
 import com.simplemobiletools.commons.extensions.getFilePublicUri
@@ -45,14 +42,11 @@ import com.simplemobiletools.commons.extensions.hasPermission
 import com.simplemobiletools.commons.extensions.hideKeyboard
 import com.simplemobiletools.commons.extensions.internalStoragePath
 import com.simplemobiletools.commons.extensions.isExternalStorageManager
-import com.simplemobiletools.commons.extensions.isGif
-import com.simplemobiletools.commons.extensions.isGone
 import com.simplemobiletools.commons.extensions.isImageFast
 import com.simplemobiletools.commons.extensions.isMediaFile
 import com.simplemobiletools.commons.extensions.isPackageInstalled
-import com.simplemobiletools.commons.extensions.isPathOnOTG
+import com.simplemobiletools.gallery.pro.extensions.isPathOnOTG
 import com.simplemobiletools.commons.extensions.isRawFast
-import com.simplemobiletools.commons.extensions.isSvg
 import com.simplemobiletools.commons.extensions.isVideoFast
 import com.simplemobiletools.commons.extensions.launchMoreAppsFromUsIntent
 import com.simplemobiletools.commons.extensions.recycleBinPath
@@ -93,8 +87,12 @@ import com.simplemobiletools.gallery.pro.dialogs.ChangeViewTypeDialog
 import com.simplemobiletools.gallery.pro.dialogs.FilterMediaDialog
 import com.simplemobiletools.gallery.pro.dialogs.GrantAllFilesDialog
 import com.simplemobiletools.gallery.pro.extensions.addTempFolderIfNeeded
+import com.simplemobiletools.gallery.pro.extensions.beGone
+import com.simplemobiletools.gallery.pro.extensions.beVisible
+import com.simplemobiletools.gallery.pro.extensions.beVisibleIf
 import com.simplemobiletools.gallery.pro.extensions.config
 import com.simplemobiletools.gallery.pro.extensions.createDirectoryFromMedia
+import com.simplemobiletools.gallery.pro.extensions.deleteFiles
 import com.simplemobiletools.gallery.pro.extensions.directoryDB
 import com.simplemobiletools.gallery.pro.extensions.getCachedDirectories
 import com.simplemobiletools.gallery.pro.extensions.getCachedMedia
@@ -108,6 +106,9 @@ import com.simplemobiletools.gallery.pro.extensions.getSortedDirectories
 import com.simplemobiletools.gallery.pro.extensions.handleExcludedFolderPasswordProtection
 import com.simplemobiletools.gallery.pro.extensions.handleMediaManagementPrompt
 import com.simplemobiletools.gallery.pro.extensions.isDownloadsFolder
+import com.simplemobiletools.gallery.pro.extensions.isGif
+import com.simplemobiletools.gallery.pro.extensions.isGone
+import com.simplemobiletools.gallery.pro.extensions.isSvg
 import com.simplemobiletools.gallery.pro.extensions.launchAbout
 import com.simplemobiletools.gallery.pro.extensions.launchCamera
 import com.simplemobiletools.gallery.pro.extensions.launchSettings
@@ -156,6 +157,7 @@ import java.io.FileNotFoundException
 import java.io.InputStream
 import java.io.OutputStream
 
+@UnstableApi
 class MainActivity : SimpleActivity(), DirectoryOperationsListener {
     companion object {
         private const val PICK_MEDIA = 2
@@ -178,7 +180,6 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
     private var mShouldStopFetching = false
     private var mWasDefaultFolderChecked = false
     private var mWasMediaManagementPromptShown = false
-    private var mWasUpgradedFromFreeShown = false
     private var mLatestMediaId = 0L
     private var mLatestMediaDateId = 0L
     private var mCurrentPathPrefix =
@@ -596,7 +597,11 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
                             config.tempFolderPath
                         ), Toast.LENGTH_LONG
                     )
-                    tryDeleteFileDirItem(newFolder.toFileDirItem(applicationContext), true, true)
+                    tryDeleteFileDirItem(
+                        fileDirItem = newFolder.toFileDirItem(applicationContext),
+                        allowDeleteFolder = true,
+                        deleteFromDatabase = true
+                    )
                 }
             }
             config.tempFolderPath = ""
@@ -706,7 +711,11 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
     }
 
     private fun showSortingDialog() {
-        ChangeSortingDialog(this, true, false) {
+        ChangeSortingDialog(
+            activity = this,
+            isDirectorySorting = true,
+            showFolderCheckbox = false
+        ) {
             binding.directoriesGrid.adapter = null
             if (config.directorySorting and SORT_BY_DATE_MODIFIED != 0 || config.directorySorting and SORT_BY_DATE_TAKEN != 0) {
                 getDirectories()
@@ -955,7 +964,14 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
     }
 
     private fun createNewFolder() {
-        FilePickerDialog(this, internalStoragePath, false, config.shouldShowHidden, false, true) {
+        FilePickerDialog(
+            activity = this,
+            currPath = internalStoragePath,
+            pickFile = false,
+            showHidden = config.shouldShowHidden,
+            showFAB = false,
+            canAddShowHiddenButton = true
+        ) {
             CreateNewFolderDialog(this, it) {
                 config.tempFolderPath = it
                 ensureBackgroundThread {
@@ -1192,12 +1208,12 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
 
         // fetch files from MediaStore only, unless the app has the MANAGE_EXTERNAL_STORAGE permission on Android 11+
         val android11Files = mLastMediaFetcher?.getAndroid11FolderMedia(
-            getImagesOnly,
-            getVideosOnly,
-            favoritePaths,
-            false,
-            true,
-            dateTakens
+            isPickImage = getImagesOnly,
+            isPickVideo = getVideosOnly,
+            favoritePaths = favoritePaths,
+            getFavoritePathsOnly = false,
+            getProperDateTaken = true,
+            dateTakens = dateTakens
         )
         try {
             for (directory in dirs) {
@@ -1404,10 +1420,7 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
 
         // do not add excluded folders and their subfolders at everShownFolders
         dirs.filter { dir ->
-            if (excludedFolders.any { dir.path.startsWith(it) }) {
-                return@filter false
-            }
-            return@filter true
+            return@filter !excludedFolders.any { dir.path.startsWith(it) }
         }.mapTo(everShownFolders) { it.path }
 
         try {

@@ -127,3 +127,13 @@ fun String.isThisOrParentFolderHidden(): Boolean {
     }
     return false
 }
+
+fun String.isWebP() = endsWith(".webp", true)
+
+fun String.isSvg() = endsWith(".svg", true)
+
+fun String.isGif() = endsWith(".gif", true)
+
+fun String.isApng() = endsWith(".apng", true)
+
+fun String.isJpg() = endsWith(".jpg", true) or endsWith(".jpeg", true)

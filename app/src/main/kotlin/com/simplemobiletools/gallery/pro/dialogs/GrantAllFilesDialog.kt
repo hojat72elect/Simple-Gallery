@@ -1,8 +1,8 @@
 package com.simplemobiletools.gallery.pro.dialogs
 
 import com.simplemobiletools.commons.activities.BaseSimpleActivity
-import com.simplemobiletools.commons.extensions.applyColorFilter
-import com.simplemobiletools.commons.extensions.getAlertDialogBuilder
+import com.simplemobiletools.gallery.pro.extensions.applyColorFilter
+import com.simplemobiletools.gallery.pro.extensions.getAlertDialogBuilder
 import com.simplemobiletools.commons.extensions.getProperTextColor
 import com.simplemobiletools.commons.extensions.setupDialogStuff
 import com.simplemobiletools.gallery.pro.databinding.DialogGrantAllFilesBinding

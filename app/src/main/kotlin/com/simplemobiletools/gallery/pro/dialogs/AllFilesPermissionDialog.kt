@@ -4,7 +4,7 @@ import android.annotation.SuppressLint
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import com.simplemobiletools.commons.activities.BaseSimpleActivity
-import com.simplemobiletools.commons.extensions.getAlertDialogBuilder
+import com.simplemobiletools.gallery.pro.extensions.getAlertDialogBuilder
 import com.simplemobiletools.commons.extensions.setupDialogStuff
 import com.simplemobiletools.gallery.pro.R
 

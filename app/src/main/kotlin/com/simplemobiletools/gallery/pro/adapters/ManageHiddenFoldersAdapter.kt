@@ -6,7 +6,7 @@ import android.view.ViewGroup
 import com.simplemobiletools.commons.activities.BaseSimpleActivity
 import com.simplemobiletools.commons.adapters.MyRecyclerViewAdapter
 import com.simplemobiletools.commons.extensions.getProperTextColor
-import com.simplemobiletools.commons.extensions.isPathOnSD
+import com.simplemobiletools.gallery.pro.extensions.isPathOnSD
 import com.simplemobiletools.commons.extensions.setupViewBackground
 import com.simplemobiletools.commons.interfaces.RefreshRecyclerViewListener
 import com.simplemobiletools.commons.views.MyRecyclerView

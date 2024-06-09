@@ -14,11 +14,11 @@ import android.widget.RelativeLayout
 import android.widget.SeekBar
 import com.google.vr.sdk.widgets.video.VrVideoEventListener
 import com.google.vr.sdk.widgets.video.VrVideoView
-import com.simplemobiletools.commons.extensions.beVisible
+import com.simplemobiletools.gallery.pro.extensions.beVisible
 import com.simplemobiletools.commons.extensions.getFormattedDuration
 import com.simplemobiletools.commons.extensions.navigationBarHeight
 import com.simplemobiletools.commons.extensions.navigationBarWidth
-import com.simplemobiletools.commons.extensions.onGlobalLayout
+import com.simplemobiletools.gallery.pro.extensions.onGlobalLayout
 import com.simplemobiletools.commons.extensions.showErrorToast
 import com.simplemobiletools.commons.extensions.toast
 import com.simplemobiletools.commons.extensions.viewBinding

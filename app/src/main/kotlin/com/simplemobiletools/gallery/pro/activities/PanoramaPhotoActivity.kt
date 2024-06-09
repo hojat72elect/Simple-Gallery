@@ -12,10 +12,10 @@ import android.view.WindowInsetsController
 import android.widget.RelativeLayout
 import com.google.vr.sdk.widgets.pano.VrPanoramaEventListener
 import com.google.vr.sdk.widgets.pano.VrPanoramaView
-import com.simplemobiletools.commons.extensions.beVisible
+import com.simplemobiletools.gallery.pro.extensions.beVisible
 import com.simplemobiletools.commons.extensions.navigationBarHeight
 import com.simplemobiletools.commons.extensions.navigationBarWidth
-import com.simplemobiletools.commons.extensions.onGlobalLayout
+import com.simplemobiletools.gallery.pro.extensions.onGlobalLayout
 import com.simplemobiletools.commons.extensions.showErrorToast
 import com.simplemobiletools.commons.extensions.toast
 import com.simplemobiletools.commons.extensions.viewBinding

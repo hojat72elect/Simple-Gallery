@@ -12,7 +12,7 @@ import android.view.MotionEvent
 import android.view.ViewGroup
 import android.widget.RelativeLayout
 import android.widget.TextView
-import com.simplemobiletools.commons.extensions.onGlobalLayout
+import com.simplemobiletools.gallery.pro.extensions.onGlobalLayout
 import com.simplemobiletools.gallery.pro.R
 import com.simplemobiletools.gallery.pro.extensions.audioManager
 import com.simplemobiletools.gallery.pro.helpers.DRAG_THRESHOLD

@@ -1,7 +1,7 @@
 package com.simplemobiletools.gallery.pro.dialogs
 
 import com.simplemobiletools.commons.activities.BaseSimpleActivity
-import com.simplemobiletools.commons.extensions.getAlertDialogBuilder
+import com.simplemobiletools.gallery.pro.extensions.getAlertDialogBuilder
 import com.simplemobiletools.commons.extensions.setupDialogStuff
 import com.simplemobiletools.gallery.pro.R
 import com.simplemobiletools.gallery.pro.databinding.DialogFilterMediaBinding

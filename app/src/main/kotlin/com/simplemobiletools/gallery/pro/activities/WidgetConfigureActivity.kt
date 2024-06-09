@@ -11,8 +11,7 @@ import android.widget.RemoteViews
 import com.bumptech.glide.signature.ObjectKey
 import com.simplemobiletools.commons.dialogs.ColorPickerDialog
 import com.simplemobiletools.commons.extensions.adjustAlpha
-import com.simplemobiletools.commons.extensions.applyColorFilter
-import com.simplemobiletools.commons.extensions.beVisibleIf
+import com.simplemobiletools.gallery.pro.extensions.beVisibleIf
 import com.simplemobiletools.commons.extensions.getContrastColor
 import com.simplemobiletools.commons.extensions.getProperBackgroundColor
 import com.simplemobiletools.commons.extensions.getProperPrimaryColor
@@ -25,6 +24,7 @@ import com.simplemobiletools.commons.helpers.ensureBackgroundThread
 import com.simplemobiletools.gallery.pro.R
 import com.simplemobiletools.gallery.pro.databinding.ActivityWidgetConfigBinding
 import com.simplemobiletools.gallery.pro.dialogs.PickDirectoryDialog
+import com.simplemobiletools.gallery.pro.extensions.applyColorFilter
 import com.simplemobiletools.gallery.pro.extensions.config
 import com.simplemobiletools.gallery.pro.extensions.directoryDB
 import com.simplemobiletools.gallery.pro.extensions.getCachedDirectories

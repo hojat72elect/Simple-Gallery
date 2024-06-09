@@ -10,10 +10,13 @@ import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.PictureDrawable
 import android.media.AudioManager
+import android.media.MediaScannerConnection
+import android.net.Uri
 import android.os.Process
 import android.provider.MediaStore.Files
 import android.provider.MediaStore.Images
 import android.widget.ImageView
+import android.widget.Toast
 import com.bumptech.glide.Glide
 import com.bumptech.glide.Priority
 import com.bumptech.glide.integration.webp.WebpBitmapFactory
@@ -44,20 +47,18 @@ import com.simplemobiletools.commons.extensions.getParentPath
 import com.simplemobiletools.commons.extensions.getStringValue
 import com.simplemobiletools.commons.extensions.humanizePath
 import com.simplemobiletools.commons.extensions.internalStoragePath
-import com.simplemobiletools.commons.extensions.isGif
-import com.simplemobiletools.commons.extensions.isPathOnOTG
-import com.simplemobiletools.commons.extensions.isPathOnSD
 import com.simplemobiletools.commons.extensions.isPng
 import com.simplemobiletools.commons.extensions.isPortrait
 import com.simplemobiletools.commons.extensions.isRawFast
-import com.simplemobiletools.commons.extensions.isSvg
 import com.simplemobiletools.commons.extensions.isVideoFast
 import com.simplemobiletools.commons.extensions.normalizeString
 import com.simplemobiletools.commons.extensions.otgPath
 import com.simplemobiletools.commons.extensions.recycleBinPath
 import com.simplemobiletools.commons.extensions.sdCardPath
+import com.simplemobiletools.gallery.pro.extensions.showErrorToast
 import com.simplemobiletools.commons.extensions.toast
 import com.simplemobiletools.commons.helpers.AlphanumericComparator
+import com.simplemobiletools.commons.helpers.BaseConfig
 import com.simplemobiletools.commons.helpers.FAVORITES
 import com.simplemobiletools.commons.helpers.NOMEDIA
 import com.simplemobiletools.commons.helpers.SORT_BY_CUSTOM
@@ -1383,4 +1384,40 @@ fun Context.getFileDateTaken(path: String): Long {
     }
 
     return 0L
+}
+
+val Context.baseConfig: BaseConfig get() = BaseConfig.newInstance(this)
+
+// avoid calling this multiple times in row, it can delete whole folder contents
+fun Context.rescanPaths(paths: List<String>, callback: (() -> Unit)? = null) {
+    if (paths.isEmpty()) {
+        callback?.invoke()
+        return
+    }
+
+    for (path in paths) {
+        Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE).apply {
+            data = Uri.fromFile(File(path))
+            sendBroadcast(this)
+        }
+    }
+
+    var cnt = paths.size
+    MediaScannerConnection.scanFile(applicationContext, paths.toTypedArray(), null) { s, uri ->
+        if (--cnt == 0) {
+            callback?.invoke()
+        }
+    }
+}
+
+fun Context.showErrorToast(exception: Exception, length: Int = Toast.LENGTH_LONG) {
+    showErrorToast(exception.toString(), length)
+}
+
+fun Context.showErrorToast(msg: String, length: Int = Toast.LENGTH_LONG) {
+    toast(String.format(getString(R.string.error), msg), length)
+}
+
+fun Context.toast(id: Int, length: Int = Toast.LENGTH_SHORT) {
+    toast(getString(id), length)
 }

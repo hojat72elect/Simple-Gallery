@@ -5,8 +5,8 @@ import android.widget.RadioGroup
 import com.simplemobiletools.commons.R
 import com.simplemobiletools.commons.activities.BaseSimpleActivity
 import com.simplemobiletools.commons.databinding.RadioButtonBinding
-import com.simplemobiletools.commons.extensions.beVisibleIf
-import com.simplemobiletools.commons.extensions.getAlertDialogBuilder
+import com.simplemobiletools.gallery.pro.extensions.beVisibleIf
+import com.simplemobiletools.gallery.pro.extensions.getAlertDialogBuilder
 import com.simplemobiletools.commons.extensions.getBasePath
 import com.simplemobiletools.commons.extensions.setupDialogStuff
 import com.simplemobiletools.gallery.pro.databinding.DialogExcludeFolderBinding

@@ -2,7 +2,7 @@ package com.simplemobiletools.gallery.pro.activities
 
 import android.os.Bundle
 import com.simplemobiletools.commons.dialogs.FilePickerDialog
-import com.simplemobiletools.commons.extensions.beVisibleIf
+import com.simplemobiletools.gallery.pro.extensions.beVisibleIf
 import com.simplemobiletools.commons.extensions.getProperTextColor
 import com.simplemobiletools.commons.extensions.internalStoragePath
 import com.simplemobiletools.commons.extensions.isExternalStorageManager

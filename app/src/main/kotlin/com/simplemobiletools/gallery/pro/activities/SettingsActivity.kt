@@ -16,10 +16,10 @@ import com.simplemobiletools.commons.dialogs.ConfirmationDialog
 import com.simplemobiletools.commons.dialogs.FilePickerDialog
 import com.simplemobiletools.commons.dialogs.RadioGroupDialog
 import com.simplemobiletools.commons.dialogs.SecurityDialog
-import com.simplemobiletools.commons.extensions.baseConfig
-import com.simplemobiletools.commons.extensions.beGoneIf
-import com.simplemobiletools.commons.extensions.beVisibleIf
-import com.simplemobiletools.commons.extensions.checkAppIconColor
+import com.simplemobiletools.gallery.pro.extensions.baseConfig
+import com.simplemobiletools.gallery.pro.extensions.beGoneIf
+import com.simplemobiletools.gallery.pro.extensions.beVisibleIf
+import com.simplemobiletools.gallery.pro.extensions.checkAppIconColor
 import com.simplemobiletools.commons.extensions.formatSize
 import com.simplemobiletools.commons.extensions.getAppIconColors
 import com.simplemobiletools.commons.extensions.getCurrentFormattedDateTime
@@ -29,7 +29,7 @@ import com.simplemobiletools.commons.extensions.getProperPrimaryColor
 import com.simplemobiletools.commons.extensions.getProperSize
 import com.simplemobiletools.commons.extensions.handleHiddenFolderPasswordProtection
 import com.simplemobiletools.commons.extensions.isExternalStorageManager
-import com.simplemobiletools.commons.extensions.isVisible
+import com.simplemobiletools.gallery.pro.extensions.isVisible
 import com.simplemobiletools.commons.extensions.recycleBinPath
 import com.simplemobiletools.commons.extensions.showErrorToast
 import com.simplemobiletools.commons.extensions.toBoolean

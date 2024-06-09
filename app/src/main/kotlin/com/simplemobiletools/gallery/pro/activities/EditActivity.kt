@@ -1,5 +1,6 @@
 package com.simplemobiletools.gallery.pro.activities
 
+import android.annotation.SuppressLint
 import android.annotation.TargetApi
 import android.app.Activity
 import android.content.Intent
@@ -27,13 +28,12 @@ import com.bumptech.glide.request.target.Target
 import com.canhub.cropper.CropImageView
 import com.simplemobiletools.commons.dialogs.ColorPickerDialog
 import com.simplemobiletools.commons.dialogs.ConfirmationDialog
-import com.simplemobiletools.commons.extensions.applyColorFilter
-import com.simplemobiletools.commons.extensions.baseConfig
-import com.simplemobiletools.commons.extensions.beGone
-import com.simplemobiletools.commons.extensions.beGoneIf
-import com.simplemobiletools.commons.extensions.beVisible
-import com.simplemobiletools.commons.extensions.beVisibleIf
-import com.simplemobiletools.commons.extensions.checkAppSideloading
+import com.simplemobiletools.gallery.pro.extensions.baseConfig
+import com.simplemobiletools.gallery.pro.extensions.beGone
+import com.simplemobiletools.gallery.pro.extensions.beGoneIf
+import com.simplemobiletools.gallery.pro.extensions.beVisible
+import com.simplemobiletools.gallery.pro.extensions.beVisibleIf
+import com.simplemobiletools.gallery.pro.extensions.checkAppSideloading
 import com.simplemobiletools.commons.extensions.getCompressionFormat
 import com.simplemobiletools.commons.extensions.getCurrentFormattedDateTime
 import com.simplemobiletools.commons.extensions.getFileOutputStream
@@ -46,13 +46,13 @@ import com.simplemobiletools.commons.extensions.getProperPrimaryColor
 import com.simplemobiletools.commons.extensions.getProperTextColor
 import com.simplemobiletools.commons.extensions.getRealPathFromURI
 import com.simplemobiletools.commons.extensions.internalStoragePath
-import com.simplemobiletools.commons.extensions.isGone
-import com.simplemobiletools.commons.extensions.isPathOnOTG
-import com.simplemobiletools.commons.extensions.isVisible
+import com.simplemobiletools.gallery.pro.extensions.isGone
+import com.simplemobiletools.gallery.pro.extensions.isPathOnOTG
+import com.simplemobiletools.gallery.pro.extensions.isVisible
 import com.simplemobiletools.commons.extensions.launchViewIntent
-import com.simplemobiletools.commons.extensions.onGlobalLayout
+import com.simplemobiletools.gallery.pro.extensions.onGlobalLayout
 import com.simplemobiletools.commons.extensions.onSeekBarChangeListener
-import com.simplemobiletools.commons.extensions.rescanPaths
+import com.simplemobiletools.gallery.pro.extensions.rescanPaths
 import com.simplemobiletools.commons.extensions.sharePathIntent
 import com.simplemobiletools.commons.extensions.showErrorToast
 import com.simplemobiletools.commons.extensions.toast
@@ -69,6 +69,7 @@ import com.simplemobiletools.gallery.pro.databinding.ActivityEditBinding
 import com.simplemobiletools.gallery.pro.dialogs.OtherAspectRatioDialog
 import com.simplemobiletools.gallery.pro.dialogs.ResizeDialog
 import com.simplemobiletools.gallery.pro.dialogs.SaveAsDialog
+import com.simplemobiletools.gallery.pro.extensions.applyColorFilter
 import com.simplemobiletools.gallery.pro.extensions.config
 import com.simplemobiletools.gallery.pro.extensions.copyNonDimensionAttributesTo
 import com.simplemobiletools.gallery.pro.extensions.fixDateTaken
@@ -656,6 +657,7 @@ class EditActivity : SimpleActivity(), CropImageView.OnCropImageCompleteListener
         binding.bottomEditorDrawActions.bottomDrawColor.scaleY = scale
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     private fun updatePrimaryActionButtons() {
         if (binding.cropImageView.isGone() && currPrimaryAction == PRIMARY_ACTION_CROP_ROTATE) {
             loadCropImageView()

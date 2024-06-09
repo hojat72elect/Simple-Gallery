@@ -4,7 +4,7 @@ import android.annotation.SuppressLint
 import android.content.DialogInterface
 import com.simplemobiletools.commons.activities.BaseSimpleActivity
 import com.simplemobiletools.commons.dialogs.RadioGroupDialog
-import com.simplemobiletools.commons.extensions.getAlertDialogBuilder
+import com.simplemobiletools.gallery.pro.extensions.getAlertDialogBuilder
 import com.simplemobiletools.commons.extensions.setupDialogStuff
 import com.simplemobiletools.commons.models.RadioItem
 import com.simplemobiletools.gallery.pro.databinding.DialogChangeFileThumbnailStyleBinding
