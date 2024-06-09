@@ -11,7 +11,7 @@ import com.simplemobiletools.commons.activities.BaseSimpleActivity
 import com.simplemobiletools.gallery.pro.extensions.beGone
 import com.simplemobiletools.gallery.pro.extensions.beVisible
 import com.simplemobiletools.gallery.pro.extensions.getAlertDialogBuilder
-import com.simplemobiletools.commons.extensions.getProperTextColor
+import com.simplemobiletools.gallery.pro.extensions.getProperTextColor
 import com.simplemobiletools.commons.extensions.setupDialogStuff
 import com.simplemobiletools.gallery.pro.R
 import com.simplemobiletools.gallery.pro.adapters.toItemBinding

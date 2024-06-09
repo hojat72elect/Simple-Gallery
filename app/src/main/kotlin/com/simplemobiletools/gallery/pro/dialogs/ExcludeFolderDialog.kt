@@ -7,7 +7,7 @@ import com.simplemobiletools.commons.activities.BaseSimpleActivity
 import com.simplemobiletools.commons.databinding.RadioButtonBinding
 import com.simplemobiletools.gallery.pro.extensions.beVisibleIf
 import com.simplemobiletools.gallery.pro.extensions.getAlertDialogBuilder
-import com.simplemobiletools.commons.extensions.getBasePath
+import com.simplemobiletools.gallery.pro.extensions.getBasePath
 import com.simplemobiletools.commons.extensions.setupDialogStuff
 import com.simplemobiletools.gallery.pro.databinding.DialogExcludeFolderBinding
 import com.simplemobiletools.gallery.pro.extensions.config

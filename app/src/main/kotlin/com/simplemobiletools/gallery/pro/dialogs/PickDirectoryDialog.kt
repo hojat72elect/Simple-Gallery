@@ -5,6 +5,7 @@ import android.view.KeyEvent
 import android.view.inputmethod.EditorInfo
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.media3.common.util.UnstableApi
 import androidx.recyclerview.widget.RecyclerView
 import com.simplemobiletools.commons.activities.BaseSimpleActivity
 import com.simplemobiletools.commons.dialogs.FilePickerDialog
@@ -12,16 +13,16 @@ import com.simplemobiletools.gallery.pro.extensions.beGone
 import com.simplemobiletools.gallery.pro.extensions.beInvisible
 import com.simplemobiletools.gallery.pro.extensions.beVisibleIf
 import com.simplemobiletools.gallery.pro.extensions.getAlertDialogBuilder
-import com.simplemobiletools.commons.extensions.getDefaultCopyDestinationPath
-import com.simplemobiletools.commons.extensions.getProperPrimaryColor
+import com.simplemobiletools.gallery.pro.extensions.getDefaultCopyDestinationPath
+import com.simplemobiletools.gallery.pro.extensions.getProperPrimaryColor
 import com.simplemobiletools.commons.extensions.handleHiddenFolderPasswordProtection
 import com.simplemobiletools.commons.extensions.handleLockedFolderOpening
 import com.simplemobiletools.commons.extensions.hideKeyboard
 import com.simplemobiletools.gallery.pro.extensions.isGone
-import com.simplemobiletools.commons.extensions.isInDownloadDir
-import com.simplemobiletools.commons.extensions.isRestrictedWithSAFSdk30
+import com.simplemobiletools.gallery.pro.extensions.isInDownloadDir
+import com.simplemobiletools.gallery.pro.extensions.isRestrictedWithSAFSdk30
 import com.simplemobiletools.commons.extensions.setupDialogStuff
-import com.simplemobiletools.commons.extensions.toast
+import com.simplemobiletools.gallery.pro.extensions.toast
 import com.simplemobiletools.commons.helpers.VIEW_TYPE_GRID
 import com.simplemobiletools.commons.views.MyGridLayoutManager
 import com.simplemobiletools.commons.views.MySearchMenu
@@ -36,7 +37,7 @@ import com.simplemobiletools.gallery.pro.extensions.getDistinctPath
 import com.simplemobiletools.gallery.pro.extensions.getSortedDirectories
 import com.simplemobiletools.gallery.pro.models.Directory
 
-class PickDirectoryDialog(
+@UnstableApi class PickDirectoryDialog(
     val activity: BaseSimpleActivity,
     private val sourcePath: String,
     showOtherFolderButton: Boolean,

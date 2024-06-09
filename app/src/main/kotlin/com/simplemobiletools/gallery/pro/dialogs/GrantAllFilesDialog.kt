@@ -3,7 +3,7 @@ package com.simplemobiletools.gallery.pro.dialogs
 import com.simplemobiletools.commons.activities.BaseSimpleActivity
 import com.simplemobiletools.gallery.pro.extensions.applyColorFilter
 import com.simplemobiletools.gallery.pro.extensions.getAlertDialogBuilder
-import com.simplemobiletools.commons.extensions.getProperTextColor
+import com.simplemobiletools.gallery.pro.extensions.getProperTextColor
 import com.simplemobiletools.commons.extensions.setupDialogStuff
 import com.simplemobiletools.gallery.pro.databinding.DialogGrantAllFilesBinding
 import com.simplemobiletools.gallery.pro.extensions.launchGrantAllFilesIntent

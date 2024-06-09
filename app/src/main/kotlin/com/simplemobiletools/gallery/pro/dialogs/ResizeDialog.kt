@@ -5,11 +5,11 @@ import android.widget.EditText
 import androidx.appcompat.app.AlertDialog
 import com.simplemobiletools.commons.activities.BaseSimpleActivity
 import com.simplemobiletools.gallery.pro.extensions.getAlertDialogBuilder
-import com.simplemobiletools.commons.extensions.onTextChangeListener
+import com.simplemobiletools.gallery.pro.extensions.onTextChangeListener
 import com.simplemobiletools.commons.extensions.setupDialogStuff
 import com.simplemobiletools.commons.extensions.showKeyboard
 import com.simplemobiletools.commons.extensions.toInt
-import com.simplemobiletools.commons.extensions.toast
+import com.simplemobiletools.gallery.pro.extensions.toast
 import com.simplemobiletools.commons.extensions.value
 import com.simplemobiletools.gallery.pro.R
 import com.simplemobiletools.gallery.pro.databinding.DialogResizeImageBinding

@@ -5,12 +5,12 @@ import androidx.appcompat.app.AlertDialog
 import com.simplemobiletools.commons.activities.BaseSimpleActivity
 import com.simplemobiletools.gallery.pro.extensions.getAlertDialogBuilder
 import com.simplemobiletools.commons.extensions.getParentPath
-import com.simplemobiletools.commons.extensions.getProperPrimaryColor
+import com.simplemobiletools.gallery.pro.extensions.getProperPrimaryColor
 import com.simplemobiletools.commons.extensions.setupDialogStuff
-import com.simplemobiletools.commons.extensions.showErrorToast
+import com.simplemobiletools.gallery.pro.extensions.showErrorToast
 import com.simplemobiletools.commons.extensions.showKeyboard
 import com.simplemobiletools.commons.extensions.toInt
-import com.simplemobiletools.commons.extensions.toast
+import com.simplemobiletools.gallery.pro.extensions.toast
 import com.simplemobiletools.commons.helpers.ensureBackgroundThread
 import com.simplemobiletools.gallery.pro.R
 import com.simplemobiletools.gallery.pro.databinding.DialogResizeMultipleImagesBinding

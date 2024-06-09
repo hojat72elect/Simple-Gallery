@@ -16,12 +16,12 @@ import com.google.vr.sdk.widgets.video.VrVideoEventListener
 import com.google.vr.sdk.widgets.video.VrVideoView
 import com.simplemobiletools.gallery.pro.extensions.beVisible
 import com.simplemobiletools.commons.extensions.getFormattedDuration
-import com.simplemobiletools.commons.extensions.navigationBarHeight
-import com.simplemobiletools.commons.extensions.navigationBarWidth
+import com.simplemobiletools.gallery.pro.extensions.navigationBarHeight
+import com.simplemobiletools.gallery.pro.extensions.navigationBarWidth
 import com.simplemobiletools.gallery.pro.extensions.onGlobalLayout
-import com.simplemobiletools.commons.extensions.showErrorToast
-import com.simplemobiletools.commons.extensions.toast
-import com.simplemobiletools.commons.extensions.viewBinding
+import com.simplemobiletools.gallery.pro.extensions.showErrorToast
+import com.simplemobiletools.gallery.pro.extensions.toast
+import com.simplemobiletools.gallery.pro.extensions.viewBinding
 import com.simplemobiletools.commons.helpers.isRPlus
 import com.simplemobiletools.gallery.pro.R
 import com.simplemobiletools.gallery.pro.databinding.ActivityPanoramaVideoBinding

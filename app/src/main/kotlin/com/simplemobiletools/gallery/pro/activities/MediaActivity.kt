@@ -9,6 +9,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.view.ViewGroup
 import android.widget.RelativeLayout
+import androidx.media3.common.util.UnstableApi
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
@@ -18,33 +19,13 @@ import com.bumptech.glide.request.transition.Transition
 import com.simplemobiletools.commons.dialogs.ConfirmationDialog
 import com.simplemobiletools.commons.dialogs.CreateNewFolderDialog
 import com.simplemobiletools.commons.dialogs.RadioGroupDialog
-import com.simplemobiletools.commons.extensions.areSystemAnimationsEnabled
-import com.simplemobiletools.gallery.pro.extensions.beGone
-import com.simplemobiletools.gallery.pro.extensions.beVisible
-import com.simplemobiletools.gallery.pro.extensions.beVisibleIf
-import com.simplemobiletools.gallery.pro.extensions.deleteFiles
-import com.simplemobiletools.commons.extensions.getDoesFilePathExist
-import com.simplemobiletools.commons.extensions.getFilenameFromPath
-import com.simplemobiletools.commons.extensions.getIsPathDirectory
-import com.simplemobiletools.commons.extensions.getLatestMediaByDateId
-import com.simplemobiletools.commons.extensions.getLatestMediaId
-import com.simplemobiletools.commons.extensions.getProperBackgroundColor
-import com.simplemobiletools.commons.extensions.getProperPrimaryColor
-import com.simplemobiletools.commons.extensions.getProperTextColor
-import com.simplemobiletools.commons.extensions.getTimeFormat
-import com.simplemobiletools.commons.extensions.handleHiddenFolderPasswordProtection
-import com.simplemobiletools.commons.extensions.handleLockedFolderOpening
-import com.simplemobiletools.commons.extensions.hideKeyboard
-import com.simplemobiletools.commons.extensions.isExternalStorageManager
-import com.simplemobiletools.gallery.pro.extensions.isGone
-import com.simplemobiletools.commons.extensions.isMediaFile
-import com.simplemobiletools.commons.extensions.isPackageInstalled
-import com.simplemobiletools.commons.extensions.isVideoFast
-import com.simplemobiletools.gallery.pro.extensions.isVisible
-import com.simplemobiletools.commons.extensions.recycleBinPath
-import com.simplemobiletools.commons.extensions.showErrorToast
-import com.simplemobiletools.commons.extensions.toast
-import com.simplemobiletools.commons.extensions.viewBinding
+import com.simplemobiletools.gallery.pro.extensions.getFilenameFromPath
+import com.simplemobiletools.gallery.pro.extensions.handleHiddenFolderPasswordProtection
+import com.simplemobiletools.gallery.pro.extensions.handleLockedFolderOpening
+import com.simplemobiletools.gallery.pro.extensions.hideKeyboard
+import com.simplemobiletools.gallery.pro.extensions.isMediaFile
+import com.simplemobiletools.gallery.pro.extensions.isVideoFast
+import com.simplemobiletools.gallery.pro.extensions.viewBinding
 import com.simplemobiletools.commons.helpers.FAVORITES
 import com.simplemobiletools.commons.helpers.IS_FROM_GALLERY
 import com.simplemobiletools.commons.helpers.REQUEST_EDIT_IMAGE
@@ -67,15 +48,32 @@ import com.simplemobiletools.gallery.pro.dialogs.ChangeSortingDialog
 import com.simplemobiletools.gallery.pro.dialogs.ChangeViewTypeDialog
 import com.simplemobiletools.gallery.pro.dialogs.FilterMediaDialog
 import com.simplemobiletools.gallery.pro.dialogs.GrantAllFilesDialog
+import com.simplemobiletools.gallery.pro.extensions.areSystemAnimationsEnabled
+import com.simplemobiletools.gallery.pro.extensions.beGone
+import com.simplemobiletools.gallery.pro.extensions.beVisible
+import com.simplemobiletools.gallery.pro.extensions.beVisibleIf
 import com.simplemobiletools.gallery.pro.extensions.config
 import com.simplemobiletools.gallery.pro.extensions.deleteDBPath
+import com.simplemobiletools.gallery.pro.extensions.deleteFiles
 import com.simplemobiletools.gallery.pro.extensions.directoryDB
 import com.simplemobiletools.gallery.pro.extensions.emptyAndDisableTheRecycleBin
 import com.simplemobiletools.gallery.pro.extensions.emptyTheRecycleBin
 import com.simplemobiletools.gallery.pro.extensions.favoritesDB
 import com.simplemobiletools.gallery.pro.extensions.getCachedMedia
+import com.simplemobiletools.gallery.pro.extensions.getDoesFilePathExist
 import com.simplemobiletools.gallery.pro.extensions.getHumanizedFilename
+import com.simplemobiletools.gallery.pro.extensions.getIsPathDirectory
+import com.simplemobiletools.gallery.pro.extensions.getLatestMediaByDateId
+import com.simplemobiletools.gallery.pro.extensions.getLatestMediaId
+import com.simplemobiletools.gallery.pro.extensions.getProperBackgroundColor
+import com.simplemobiletools.gallery.pro.extensions.getProperPrimaryColor
+import com.simplemobiletools.gallery.pro.extensions.getProperTextColor
+import com.simplemobiletools.gallery.pro.extensions.getTimeFormat
 import com.simplemobiletools.gallery.pro.extensions.isDownloadsFolder
+import com.simplemobiletools.gallery.pro.extensions.isExternalStorageManager
+import com.simplemobiletools.gallery.pro.extensions.isGone
+import com.simplemobiletools.gallery.pro.extensions.isPackageInstalled
+import com.simplemobiletools.gallery.pro.extensions.isVisible
 import com.simplemobiletools.gallery.pro.extensions.launchAbout
 import com.simplemobiletools.gallery.pro.extensions.launchCamera
 import com.simplemobiletools.gallery.pro.extensions.launchSettings
@@ -83,8 +81,11 @@ import com.simplemobiletools.gallery.pro.extensions.mediaDB
 import com.simplemobiletools.gallery.pro.extensions.movePathsInRecycleBin
 import com.simplemobiletools.gallery.pro.extensions.openPath
 import com.simplemobiletools.gallery.pro.extensions.openRecycleBin
+import com.simplemobiletools.gallery.pro.extensions.recycleBinPath
 import com.simplemobiletools.gallery.pro.extensions.restoreRecycleBinPaths
+import com.simplemobiletools.gallery.pro.extensions.showErrorToast
 import com.simplemobiletools.gallery.pro.extensions.showRecycleBinEmptyingDialog
+import com.simplemobiletools.gallery.pro.extensions.toast
 import com.simplemobiletools.gallery.pro.extensions.tryDeleteFileDirItem
 import com.simplemobiletools.gallery.pro.extensions.updateWidgets
 import com.simplemobiletools.gallery.pro.helpers.DIRECTORY
@@ -113,6 +114,7 @@ import com.simplemobiletools.gallery.pro.models.ThumbnailSection
 import java.io.File
 import java.io.IOException
 
+@UnstableApi
 class MediaActivity : SimpleActivity(), MediaOperationsListener {
 
 

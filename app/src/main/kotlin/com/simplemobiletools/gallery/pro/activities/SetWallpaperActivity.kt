@@ -9,8 +9,8 @@ import android.os.Bundle
 import com.canhub.cropper.CropImageView
 import com.simplemobiletools.commons.dialogs.RadioGroupDialog
 import com.simplemobiletools.gallery.pro.extensions.checkAppSideloading
-import com.simplemobiletools.commons.extensions.toast
-import com.simplemobiletools.commons.extensions.viewBinding
+import com.simplemobiletools.gallery.pro.extensions.toast
+import com.simplemobiletools.gallery.pro.extensions.viewBinding
 import com.simplemobiletools.commons.helpers.NavigationIcon
 import com.simplemobiletools.commons.helpers.ensureBackgroundThread
 import com.simplemobiletools.commons.helpers.isNougatPlus

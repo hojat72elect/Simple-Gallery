@@ -7,9 +7,9 @@ import android.provider.MediaStore.Video
 import android.view.WindowManager
 import com.simplemobiletools.commons.activities.BaseSimpleActivity
 import com.simplemobiletools.commons.dialogs.FilePickerDialog
-import com.simplemobiletools.commons.extensions.getParentPath
-import com.simplemobiletools.commons.extensions.getRealPathFromURI
-import com.simplemobiletools.commons.extensions.scanPathRecursively
+import com.simplemobiletools.gallery.pro.extensions.getParentPath
+import com.simplemobiletools.gallery.pro.extensions.getRealPathFromURI
+import com.simplemobiletools.gallery.pro.extensions.scanPathRecursively
 import com.simplemobiletools.commons.helpers.ensureBackgroundThread
 import com.simplemobiletools.commons.helpers.isPiePlus
 import com.simplemobiletools.gallery.pro.R

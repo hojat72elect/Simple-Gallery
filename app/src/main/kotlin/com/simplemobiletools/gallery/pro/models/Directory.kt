@@ -7,8 +7,8 @@ import androidx.room.Ignore
 import androidx.room.Index
 import androidx.room.PrimaryKey
 import com.bumptech.glide.signature.ObjectKey
-import com.simplemobiletools.commons.extensions.formatDate
-import com.simplemobiletools.commons.extensions.formatSize
+import com.simplemobiletools.gallery.pro.extensions.formatDate
+import com.simplemobiletools.gallery.pro.extensions.formatSize
 import com.simplemobiletools.commons.helpers.FAVORITES
 import com.simplemobiletools.commons.helpers.SORT_BY_DATE_MODIFIED
 import com.simplemobiletools.commons.helpers.SORT_BY_NAME
